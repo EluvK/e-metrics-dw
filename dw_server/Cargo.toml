@@ -1,0 +1,23 @@
+[package]
+name = "dw_server"
+version = "0.1.0"
+edition = "2021"
+authors = ["Charles.Liu@upblocks.io"]
+description = "Data Warehouse Project for TOP-Chain, Server Endpoint"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+hyper = { version = "0.14.22", features = ["full"] }
+tokio = { version = "1.21.2", features = ["full"] }
+http-body-util = "0.1.0-rc.1"
+# pretty_env_logger = "0.4"
+bytes = "1.2.1"
+futures-util = "0.3.25"
+json = "0.12.4"
+redis = { version = "0.22.1", features = ["tokio-comp"] }
+
+
+[[bin]]
+name = "dw_server_proxy"
+path = "proxy/proxy.rs"
