@@ -10,14 +10,23 @@ description = "Data Warehouse Project for TOP-Chain, Server Endpoint"
 [dependencies]
 hyper = { version = "0.14.22", features = ["full"] }
 tokio = { version = "1.21.2", features = ["full"] }
-http-body-util = "0.1.0-rc.1"
+# http-body-util = "0.1.0-rc.1"
 # pretty_env_logger = "0.4"
 bytes = "1.2.1"
 futures-util = "0.3.25"
 json = "0.12.4"
 redis = { version = "0.22.1", features = ["tokio-comp"] }
+mysql_async = "0.30.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
+[dev-dependencies]
+tokio-test = "0.4.2"
 
 [[bin]]
 name = "dw_server_proxy"
 path = "proxy/proxy.rs"
+
+[[bin]]
+name = "dw_server_consumer"
+path = "consumer/consumer.rs"
