@@ -62,3 +62,21 @@ impl SqlTable for CounterUnit {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_metrics_json() {
+        let counter_unit_str = r#"{"send_timestamp":"123456","public_ip":"123.456.43.21:1024","category":"some_cat","tag":"some_tag","count":10,"value":100}"#;
+
+        let counter_unit = serde_json::from_str::<CounterUnit>(counter_unit_str).unwrap();
+
+        println!("{:?}", counter_unit);
+
+        let serialized = serde_json::to_string(&counter_unit).unwrap();
+
+        println!("{:}", serialized);
+        assert_eq!(serialized, counter_unit_str);
+    }
+}
