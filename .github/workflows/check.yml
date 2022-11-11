@@ -10,6 +10,9 @@ on:
     types: 
       - opened
       - reopened
+      - pushed
+      - synchronize
+      - ready_for_review
     branches:
       - 'master'
       - 'dev'
