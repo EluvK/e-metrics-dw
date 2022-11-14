@@ -1,42 +1,11 @@
 use std::num::NonZeroUsize;
 
+use crate::metrics_types::MetricsAlarmType;
 use redis::{Client, Commands, Connection, RedisResult};
 
 pub struct RedisConn {
     _client: Client,
     conn: Connection,
-}
-
-pub enum MetricsAlarmType {
-    Invalid,
-    Counter,
-    Timer,
-    Flower,
-}
-
-impl MetricsAlarmType {
-    fn to_string(&self) -> String {
-        match self {
-            MetricsAlarmType::Counter => String::from("counter"),
-            MetricsAlarmType::Timer => String::from("timer"),
-            MetricsAlarmType::Flower => String::from("flower"),
-            MetricsAlarmType::Invalid => String::from("invalid"),
-        }
-    }
-
-    pub fn from_string(str: String) -> Self {
-        match &str[..] {
-            "counter" => MetricsAlarmType::Counter,
-            "timer" => MetricsAlarmType::Timer,
-            "flower" => MetricsAlarmType::Flower,
-            _ => MetricsAlarmType::Invalid,
-        }
-    }
-
-    #[inline]
-    fn as_redis_key(&self) -> String {
-        self.to_string()
-    }
 }
 
 impl RedisConn {

@@ -1,6 +1,7 @@
 #![feature(is_some_and)]
 
 use std::net::SocketAddr;
+use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -8,17 +9,22 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Method, Request, Response, Server, StatusCode};
 
-use dw_server::redis_conn::{MetricsAlarmType, RedisConn};
+use dw_server::metrics_types::MetricsAlarmType;
+use dw_server::redis_conn::RedisConn;
 
 async fn handle_json_body(data: json::JsonValue, redis_conn: Arc<Mutex<RedisConn>>) -> bool {
     if !data.has_key("alarm_type") {
         println!("no alarm type description");
         return false;
     }
-    let key = MetricsAlarmType::from_string(data["alarm_type"].to_string());
-    let mut lock = redis_conn.lock().await;
-    match lock.list_push(&key, data.dump()) {
-        Ok(_) => true,
+    match MetricsAlarmType::from_str(&data["alarm_type"].to_string()) {
+        Ok(key) => {
+            let mut lock = redis_conn.lock().await;
+            match lock.list_push(&key, data.dump()) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
+        }
         Err(_) => false,
     }
 }

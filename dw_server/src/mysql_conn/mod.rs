@@ -16,10 +16,9 @@ pub struct MysqlDBConn {
 }
 
 impl MysqlDBConn {
-    // mysql_url : dw-consumer:consumerPswd!1@localhost:3306
-    pub async fn new(mysql_url: String, db_name: String) -> Result<Self> {
+    pub async fn new(mysql_url: String, db_name: &String) -> Result<Self> {
         let default_opt = format!("mysql://{}/information_schema", &mysql_url);
-        let target_opt = format!("mysql://{}/{}", &mysql_url, &db_name);
+        let target_opt = format!("mysql://{}/{}", &mysql_url, db_name);
 
         let pool = mysql_async::Pool::new(default_opt.as_ref());
 
@@ -31,7 +30,7 @@ impl MysqlDBConn {
                 Some(db_result)
             })
             .await?;
-        println!("db_exist_result:{:?}", db_exist_result);
+        // println!("db_exist_result:{:?}", db_exist_result);
 
         let mut need_create = false;
 
@@ -49,7 +48,10 @@ impl MysqlDBConn {
         // re connected to this database
         let pool = mysql_async::Pool::new(target_opt.as_ref());
 
-        let db_conn = MysqlDBConn { db_name, pool };
+        let db_conn = MysqlDBConn {
+            db_name: db_name.clone(),
+            pool,
+        };
 
         if need_create {
             db_conn.create_table().await?;
@@ -105,7 +107,7 @@ mod test {
 
     async fn test_create_conn() -> Result<MysqlDBConn> {
         let test_url_opt = String::from(crate::config::CONSUMER_MYSQL_URL);
-        let conn = MysqlDBConn::new(test_url_opt, String::from("test_db")).await?;
+        let conn = MysqlDBConn::new(test_url_opt, &String::from("test_db")).await?;
         Ok(conn)
     }
 

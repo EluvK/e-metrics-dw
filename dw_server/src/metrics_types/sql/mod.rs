@@ -1,4 +1,4 @@
-pub(crate) trait SqlTable {
+pub trait SqlTable {
     type TypeSelf;
     fn new_sql_table_opt() -> &'static str;
 
