@@ -82,12 +82,12 @@ mod test {
         assert_eq!(r, String::from("{some metrics data}"));
 
         c.list_push(
-            &MetricsAlarmType::Flower,
+            &MetricsAlarmType::Flow,
             "some flow metrics data".to_string(),
         )
         .unwrap();
 
-        let r = c.list_pop_block(&MetricsAlarmType::Flower).unwrap();
+        let r = c.list_pop_block(&MetricsAlarmType::Flow).unwrap();
         assert_eq!(r, String::from("some flow metrics data"));
 
         c.list_push(

@@ -9,7 +9,7 @@ pub enum MetricsAlarmType {
     Invalid,
     Counter,
     Timer,
-    Flower,
+    Flow,
 }
 
 impl Serialize for MetricsAlarmType {
@@ -38,7 +38,7 @@ impl FromStr for MetricsAlarmType {
         match s {
             "counter" => Ok(MetricsAlarmType::Counter),
             "timer" => Ok(MetricsAlarmType::Timer),
-            "flower" => Ok(MetricsAlarmType::Flower),
+            "flow" => Ok(MetricsAlarmType::Flow),
             _ => Err(TypeError::MetricsAlarmTypeInvalid),
         }
     }
@@ -49,7 +49,7 @@ impl ToString for MetricsAlarmType {
         match self {
             MetricsAlarmType::Counter => String::from("counter"),
             MetricsAlarmType::Timer => String::from("timer"),
-            MetricsAlarmType::Flower => String::from("flower"),
+            MetricsAlarmType::Flow => String::from("flow"),
             MetricsAlarmType::Invalid => String::from("invalid"),
         }
     }
