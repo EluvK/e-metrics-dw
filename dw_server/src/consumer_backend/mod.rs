@@ -1,5 +1,5 @@
 #![allow(unused)]
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use mysql_async::Result;
 use serde::de::Deserialize;
@@ -20,7 +20,7 @@ struct ConsumerBackendInner<UnitType> {
     commit_time: Instant,
 }
 
-const CACHE_DATA_MUST_COMMIT_LEN: usize = 1000;
+const CACHE_DATA_MUST_COMMIT_LEN: usize = 500;
 
 impl<UnitType> ConsumerBackendInner<UnitType>
 where
@@ -35,15 +35,23 @@ where
         })
     }
 
+    fn expired(&self) -> bool {
+        self.cache_data.len() == 0 && self.commit_time.elapsed() > Duration::from_secs(120)
+    }
+
+    async fn close(self) -> Result<()> {
+        self.mysql_conn.close().await
+    }
+
     async fn cache(&mut self, data: UnitType) -> Result<()> {
         self.cache_data.push(data);
         if self.cache_data.len() > CACHE_DATA_MUST_COMMIT_LEN {
-            self.try_commit().await?;
+            let _ = self.try_commit().await?;
         }
         Ok(())
     }
 
-    async fn try_commit(&mut self) -> Result<()> {
+    async fn try_commit(&mut self) -> Result<usize> {
         if self.cache_data.len() > CACHE_DATA_MUST_COMMIT_LEN {
             let r = self
                 .cache_data
@@ -57,7 +65,7 @@ where
             self.mysql_conn.insert(r).await?;
             self.commit_time = Instant::now();
         }
-        Ok(())
+        Ok(self.cache_data.len())
     }
 }
 
@@ -97,10 +105,18 @@ where
     }
 
     pub async fn try_commit_all(&mut self) -> Result<()> {
+        let mut expired_set = HashSet::new();
         for (db, cb) in self.inner_cache.iter_mut() {
-            cb.try_commit().await?;
+            let sz = cb.try_commit().await?;
+            if sz == 0 && cb.expired() {
+                expired_set.insert(db.clone());
+            }
         }
-
+        for db in expired_set {
+            if let Some(cb) = self.inner_cache.remove(&db) {
+                cb.close().await?;
+            }
+        }
         Ok(())
     }
 }
