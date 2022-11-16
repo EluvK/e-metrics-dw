@@ -47,7 +47,7 @@ async fn handle(
         }
 
         (&Method::POST, "/api/alarm") => {
-            println!("header: {:?}", req.headers());
+            // println!("header: {:?}", req.headers());
             if !req.headers().contains_key("content-type")
                 || req.headers().get("content-type").is_some_and(|value| {
                     value
@@ -58,7 +58,7 @@ async fn handle(
                 return Ok(unprocessable_entity().unwrap());
             }
 
-            println!("body: {:?}", req.body());
+            // println!("body: {:?}", req.body());
             let whole_body = hyper::body::to_bytes(req.into_body()).await?;
             let body_str = std::str::from_utf8(whole_body.as_ref()).unwrap_or("");
             let json_body = json::parse(body_str).unwrap_or(json::JsonValue::new_object());
@@ -67,7 +67,7 @@ async fn handle(
                 println!("json parse error or {:?}", whole_body);
                 return Ok(unprocessable_entity().unwrap());
             }
-            println!("body content: {:?}", json_body);
+            // println!("body content: {:?}", json_body);
             if !handle_json_body(json_body, redis_conn).await {
                 println!("handle data error");
                 return Ok(unprocessable_entity().unwrap());

@@ -20,7 +20,7 @@ struct ConsumerBackendInner<UnitType> {
     commit_time: Instant,
 }
 
-const CACHE_DATA_MUST_COMMIT_LEN: usize = 500;
+const CACHE_DATA_MUST_COMMIT_LEN: usize = 1000;
 
 impl<UnitType> ConsumerBackendInner<UnitType>
 where
