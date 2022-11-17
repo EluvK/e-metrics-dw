@@ -1,0 +1,31 @@
+[package]
+name = "dw_server"
+version = "0.1.0"
+edition = "2021"
+authors = ["Charles.Liu@upblocks.io"]
+description = "Data Warehouse Project for TOP-Chain, Server Endpoint"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bytes = "1.2.1"
+futures-util = "0.3"
+hyper = { version = "0.14", features = ["full"] }
+json = "0.12.4"
+mysql_async = "0.30.0"
+redis = { version = "0.22", features = ["tokio-comp"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = { version = "1.0", default-features = false }
+tokio = { version = "1.21", features = ["full"] }
+
+[dev-dependencies]
+tokio-test = "0.4.2"
+
+[[bin]]
+name = "dw_server_proxy"
+path = "proxy/proxy.rs"
+
+[[bin]]
+name = "dw_server_consumer"
+path = "consumer/consumer.rs"
