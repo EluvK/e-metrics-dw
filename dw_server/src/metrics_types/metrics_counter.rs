@@ -1,4 +1,3 @@
-use mysql_async::params;
 use serde::{Deserialize, Serialize};
 
 use super::common::{IpAddress, TimeStamp};
@@ -26,6 +25,17 @@ impl CounterUnit {
             value: 100,
         }
     }
+    #[cfg(test)]
+    pub fn rand2() -> Self {
+        CounterUnit {
+            send_timestamp: TimeStamp::rand(),
+            public_ip: IpAddress::rand(),
+            category: String::from("cat1"),
+            tag: String::from("tag2"),
+            count: 99,
+            value: 999,
+        }
+    }
 }
 
 impl SqlTable for CounterUnit {
@@ -44,22 +54,23 @@ impl SqlTable for CounterUnit {
         "#
     }
 
-    fn insert_table_opt() -> &'static str {
+    fn multi_insert_table_opt() -> &'static str {
         r#"
         INSERT INTO metrics_counter ( send_timestamp, public_ip, category, tag, count, value )
-        VALUES (:send_timestamp, :public_ip, :category, :tag, :count, :value )
+        VALUES
         "#
     }
 
-    fn to_params(&self) -> mysql_async::Params {
-        params! {
-            "send_timestamp" => self.send_timestamp.data(),
-            "public_ip" => self.public_ip.to_string(),
-            "category" => self.category.clone(),
-            "tag" => self.tag.clone(),
-            "count" => self.count,
-            "value" => self.value,
-        }
+    fn to_param_value_str(&self) -> String {
+        format!(
+            r#"({},"{}","{}","{}",{},{})"#,
+            self.send_timestamp.data(),
+            self.public_ip.to_string(),
+            self.category.clone(),
+            self.tag.clone(),
+            self.count,
+            self.value
+        )
     }
 }
 

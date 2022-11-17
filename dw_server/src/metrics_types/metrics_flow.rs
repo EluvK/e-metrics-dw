@@ -1,4 +1,3 @@
-use mysql_async::params;
 use serde::{Deserialize, Serialize};
 
 use super::common::{IpAddress, TimeStamp};
@@ -40,26 +39,27 @@ impl SqlTable for FlowUnit {
         "#
     }
 
-    fn insert_table_opt() -> &'static str {
+    fn multi_insert_table_opt() -> &'static str {
         r#"
         INSERT INTO metrics_flow ( send_timestamp, public_ip, category, tag, count, max_flow, min_flow, sum_flow, avg_flow, tps_flow, tps )
-        VALUES (:send_timestamp, :public_ip, :category, :tag, :count, :max_flow, :min_flow, :sum_flow, :avg_flow, :tps_flow, :tps )
+        VALUES
         "#
     }
 
-    fn to_params(&self) -> mysql_async::Params {
-        params! {
-            "send_timestamp" => self.send_timestamp.data(),
-            "public_ip" => self.public_ip.to_string(),
-            "category" => self.category.clone(),
-            "tag" => self.tag.clone(),
-            "count" => self.count,
-            "max_flow" => self.max_flow,
-            "min_flow" => self.min_flow,
-            "sum_flow" => self.sum_flow,
-            "avg_flow" => self.avg_flow,
-            "tps_flow" => self.tps_flow,
-            "tps" => self.tps,
+    fn to_param_value_str(&self) -> String {
+        format! {
+            r#"({},"{}","{}","{}",{},{},{},{},{},{},{})"#,
+            self.send_timestamp.data(),
+            self.public_ip.to_string(),
+            self.category.clone(),
+            self.tag.clone(),
+            self.count,
+            self.max_flow,
+            self.min_flow,
+            self.sum_flow,
+            self.avg_flow,
+            self.tps_flow,
+            self.tps,
         }
     }
 }

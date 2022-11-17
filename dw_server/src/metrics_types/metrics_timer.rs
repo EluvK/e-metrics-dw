@@ -1,4 +1,3 @@
-use mysql_async::params;
 use serde::{Deserialize, Serialize};
 
 use super::common::{IpAddress, TimeStamp};
@@ -34,23 +33,24 @@ impl SqlTable for TimerUnit {
         "#
     }
 
-    fn insert_table_opt() -> &'static str {
+    fn multi_insert_table_opt() -> &'static str {
         r#"
         INSERT INTO metrics_timer ( send_timestamp, public_ip, category, tag, count, max_time, min_time, avg_time )
-        VALUES (:send_timestamp, :public_ip, :category, :tag, :count, :max_time, :min_time, :avg_time )
+        VALUES
         "#
     }
 
-    fn to_params(&self) -> mysql_async::Params {
-        params! {
-            "send_timestamp" => self.send_timestamp.data(),
-            "public_ip" => self.public_ip.to_string(),
-            "category" => self.category.clone(),
-            "tag" => self.tag.clone(),
-            "count" => self.count,
-            "max_time" => self.max_time,
-            "min_time" => self.min_time,
-            "avg_time" => self.avg_time,
+    fn to_param_value_str(&self) -> String {
+        format! {
+            r#"({},"{}","{}","{}",{},{},{},{})"#,
+            self.send_timestamp.data(),
+            self.public_ip.to_string(),
+            self.category.clone(),
+            self.tag.clone(),
+            self.count,
+            self.max_time,
+            self.min_time,
+            self.avg_time,
         }
     }
 }

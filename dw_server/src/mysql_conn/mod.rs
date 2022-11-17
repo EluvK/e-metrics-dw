@@ -1,11 +1,6 @@
-use mysql_async::Params;
 use mysql_async::Result;
 
-use mysql_async::prelude::*;
-use mysql_async::{
-    prelude::{Query, WithParams},
-    Pool,
-};
+use mysql_async::{prelude::Query, Pool};
 
 use crate::metrics_types::{sql::SqlTable, CounterUnit, FlowUnit, TimerUnit};
 
@@ -84,15 +79,17 @@ impl MysqlDBConn {
     {
         let mut conn = self.pool.get_conn().await?;
 
-        UnitType::insert_table_opt()
-            .with(
-                insert_data
-                    .iter()
-                    .map(|_d| _d.to_params())
-                    .collect::<Vec<Params>>(),
-            )
-            .batch(&mut conn)
-            .await?;
+        format!(
+            "{} {}",
+            UnitType::multi_insert_table_opt(),
+            insert_data
+                .iter()
+                .map(|d| d.to_param_value_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
+        .run(&mut conn)
+        .await?;
 
         drop(conn);
 
@@ -121,6 +118,19 @@ mod test {
         Ok(())
     }
 
+    async fn test_performance() -> Result<()> {
+        let conn = test_create_conn().await?;
+        let mut vd = Vec::new();
+        for _ in 1..=2000 {
+            let d1 = CounterUnit::rand();
+            vd.push(d1);
+            let d2 = CounterUnit::rand2();
+            vd.push(d2);
+        }
+        conn.insert(vd).await?;
+        Ok(())
+    }
+
     #[test]
     fn test_conn() {
         tokio_test::block_on(test_create_conn()).unwrap();
@@ -129,5 +139,10 @@ mod test {
     #[test]
     fn test_insert() {
         tokio_test::block_on(test_create_insert()).unwrap();
+    }
+
+    #[test]
+    fn test_performance_test() {
+        tokio_test::block_on(test_performance()).unwrap();
     }
 }
