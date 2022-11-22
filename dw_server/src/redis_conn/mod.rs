@@ -1,6 +1,6 @@
 use std::num::NonZeroUsize;
 
-use crate::metrics_types::MetricsAlarmType;
+use metrics_types::MetricsAlarmType;
 use redis::{Client, Commands, Connection, RedisResult};
 
 pub struct RedisConn {

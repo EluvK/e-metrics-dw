@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use crate::metrics_types::TypeError;
+use crate::TypeError;
 
 #[derive(Debug)]
 pub(crate) struct TimeStamp {
@@ -48,10 +48,5 @@ impl FromStr for TimeStamp {
 impl TimeStamp {
     pub(crate) fn data(&self) -> u32 {
         self.ts
-    }
-
-    #[cfg(test)]
-    pub(crate) fn rand() -> TimeStamp {
-        TimeStamp { ts: 123 }
     }
 }

@@ -13,31 +13,6 @@ pub struct CounterUnit {
     value: i64,
 }
 
-impl CounterUnit {
-    #[cfg(test)]
-    pub fn rand() -> Self {
-        CounterUnit {
-            send_timestamp: TimeStamp::rand(),
-            public_ip: IpAddress::rand(),
-            category: String::from("cat"),
-            tag: String::from("tag"),
-            count: 10,
-            value: 100,
-        }
-    }
-    #[cfg(test)]
-    pub fn rand2() -> Self {
-        CounterUnit {
-            send_timestamp: TimeStamp::rand(),
-            public_ip: IpAddress::rand(),
-            category: String::from("cat1"),
-            tag: String::from("tag2"),
-            count: 99,
-            value: 999,
-        }
-    }
-}
-
 impl SqlTable for CounterUnit {
     type TypeSelf = CounterUnit;
     fn new_sql_table_opt() -> &'static str {

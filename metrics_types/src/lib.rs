@@ -1,10 +1,10 @@
-pub(crate) mod alarm_wrapper;
+pub mod alarm_wrapper;
 mod common;
 mod error;
 mod metrics_counter;
 mod metrics_flow;
 mod metrics_timer;
-pub(crate) mod sql;
+pub mod sql;
 
 pub use common::MetricsAlarmType;
 pub use error::TypeError;

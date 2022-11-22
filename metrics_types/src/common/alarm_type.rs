@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use crate::metrics_types::TypeError;
+use crate::TypeError;
 
 #[derive(Debug)]
 pub enum MetricsAlarmType {

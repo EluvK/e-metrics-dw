@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use crate::metrics_types::TypeError;
+use crate::TypeError;
 
 #[derive(Debug)]
 pub(crate) struct IpAddress {
@@ -48,15 +48,5 @@ impl FromStr for IpAddress {
                 .parse::<usize>()
                 .map_err(|err| TypeError::DeFromStringError(err.to_string()))?,
         })
-    }
-}
-
-impl IpAddress {
-    #[cfg(test)]
-    pub(crate) fn rand() -> IpAddress {
-        IpAddress {
-            ip: String::from("11.11.11.11"),
-            port: 11,
-        }
     }
 }

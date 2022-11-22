@@ -4,11 +4,8 @@ use futures_util::future;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use dw_server::{
-    consumer_backend::ConsumerBackend,
-    metrics_types::{CounterUnit, FlowUnit, MetricsAlarmType, TimerUnit},
-    redis_conn::RedisConn,
-};
+use dw_server::{consumer_backend::ConsumerBackend, redis_conn::RedisConn};
+use metrics_types::{CounterUnit, FlowUnit, MetricsAlarmType, TimerUnit};
 use tokio::{
     join,
     time::{sleep, Duration},
