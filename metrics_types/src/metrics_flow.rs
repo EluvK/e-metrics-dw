@@ -72,7 +72,6 @@ impl SqlTable for FlowUnit {
 impl UnitJsonLogHandler for FlowUnit {
     type UnitType = FlowUnit;
 
-    // {"category":"vhost","tag":"handle_data_ready_called","type":"flow","content":{"count":92,"max_flow":10,"min_flow":1,"sum_flow":131,"avg_flo":1,"tps_flow":131,"tps":"1.39"}}
     fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
         if let JsonValue::Object(obj) = json {
             let category = obj.get("category")?.as_str()?;
@@ -86,7 +85,7 @@ impl UnitJsonLogHandler for FlowUnit {
                     let sum_flow = content_obj.get("sum_flow")?.as_i64()?;
                     let avg_flow = content_obj.get("avg_flow")?.as_i64()?;
                     let tps_flow = content_obj.get("tps_flow")?.as_i64()?;
-                    let tps = content_obj.get("tps")?.as_f64()?;
+                    let tps = content_obj.get("tps")?.as_str()?.parse::<f64>().ok()?;
                     (count, max_flow, min_flow, sum_flow, avg_flow, tps_flow, tps)
                 }
                 _ => {
@@ -130,5 +129,24 @@ mod test {
 
         println!("{:}", serialized);
         assert_eq!(serialized, flow_unit_str);
+    }
+
+    #[test]
+    fn test_metrics_log() {
+        let json_object = json::parse(
+            r#"{"category":"vhost","tag":"handle_data_ready_called","type":"flow","content":{"count":92,"max_flow":10,"min_flow":1,"sum_flow":131,"avg_flow":1,"tps_flow":131,"tps":"1.39"}}"#,
+        ).unwrap();
+
+        println!("{:?}", json_object);
+
+        let meta = MetaInfos {
+            ip_port: IpAddress::local_ip_default_port(),
+            env_name: String::from("test_env_name"),
+        };
+
+        let result = FlowUnit::handle_log(json_object, meta);
+
+        println!("{:?}", result);
+        assert_eq!(result.is_some(), true);
     }
 }

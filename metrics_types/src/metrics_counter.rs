@@ -57,7 +57,6 @@ impl SqlTable for CounterUnit {
 impl UnitJsonLogHandler for CounterUnit {
     type UnitType = CounterUnit;
 
-    // {"category":"xvm","tag":"contract_manager_counter","type":"counter","content":{"count":1,"value":1}}
     fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
         if let JsonValue::Object(obj) = json {
             let category = obj.get("category")?.as_str()?;
@@ -106,5 +105,24 @@ mod test {
 
         println!("{:}", serialized);
         assert_eq!(serialized, counter_unit_str);
+    }
+
+    #[test]
+    fn test_metrics_log() {
+        let json_object = json::parse(
+            r#"{"category":"xvm","tag":"contract_manager_counter","type":"counter","content":{"count":1,"value":1}}"#,
+        ).unwrap();
+
+        println!("{:?}", json_object);
+
+        let meta = MetaInfos {
+            ip_port: IpAddress::local_ip_default_port(),
+            env_name: String::from("test_env_name"),
+        };
+
+        let result = CounterUnit::handle_log(json_object, meta);
+
+        println!("{:?}", result);
+        assert_eq!(result.is_some(), true);
     }
 }

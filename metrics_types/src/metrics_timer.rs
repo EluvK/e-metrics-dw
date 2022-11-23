@@ -63,7 +63,6 @@ impl SqlTable for TimerUnit {
 impl UnitJsonLogHandler for TimerUnit {
     type UnitType = TimerUnit;
 
-    // {"category":"xcons","tag":"network_message_dispatch","type":"timer","content":{"count":3060,"max_time":93926,"min_time":18,"avg_time":153}}
     fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
         if let JsonValue::Object(obj) = json {
             let category = obj.get("category")?.as_str()?;
@@ -116,5 +115,24 @@ mod test {
 
         println!("{:}", serialized);
         assert_eq!(serialized, timer_unit_str);
+    }
+
+    #[test]
+    fn test_metrics_log() {
+        let json_object = json::parse(
+            r#"{"category":"xcons","tag":"network_message_dispatch","type":"timer","content":{"count":3060,"max_time":93926,"min_time":18,"avg_time":153}}"#,
+        ).unwrap();
+
+        // println!("{:?}", json_object);
+
+        let meta = MetaInfos {
+            ip_port: IpAddress::local_ip_default_port(),
+            env_name: String::from("test_env_name"),
+        };
+
+        let result = TimerUnit::handle_log(json_object, meta);
+
+        println!("{:?}", result);
+        assert_eq!(result.is_some(), true);
     }
 }
