@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::TypeError;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IpAddress {
     ip: String,
     port: usize,

@@ -72,7 +72,7 @@ impl SqlTable for FlowUnit {
 impl UnitJsonLogHandler for FlowUnit {
     type UnitType = FlowUnit;
 
-    fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
+    fn handle_log(json: JsonValue, meta: &MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
         if let JsonValue::Object(obj) = json {
             let category = obj.get("category")?.as_str()?;
             let tag = obj.get("tag")?.as_str()?;
@@ -94,10 +94,10 @@ impl UnitJsonLogHandler for FlowUnit {
             };
             Some(AlarmWrapper::<FlowUnit> {
                 alarm_type: crate::MetricsAlarmType::Flow,
-                env: meta.env_name,
+                env: meta.env_name.clone(),
                 content: FlowUnit {
                     send_timestamp: TimeStamp::now(),
-                    public_ip: meta.ip_port,
+                    public_ip: meta.ip_port.clone(),
                     category: category.to_string(),
                     tag: tag.to_string(),
                     count,
@@ -144,7 +144,7 @@ mod test {
             env_name: String::from("test_env_name"),
         };
 
-        let result = FlowUnit::handle_log(json_object, meta);
+        let result = FlowUnit::handle_log(json_object, &meta);
 
         println!("{:?}", result);
         assert_eq!(result.is_some(), true);

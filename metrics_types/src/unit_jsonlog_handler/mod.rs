@@ -7,5 +7,5 @@ use json::JsonValue;
 pub trait UnitJsonLogHandler {
     type UnitType;
 
-    fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>>;
+    fn handle_log(json: JsonValue, meta: &MetaInfos) -> Option<AlarmWrapper<Self::UnitType>>;
 }

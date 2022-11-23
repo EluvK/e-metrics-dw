@@ -63,7 +63,7 @@ impl SqlTable for TimerUnit {
 impl UnitJsonLogHandler for TimerUnit {
     type UnitType = TimerUnit;
 
-    fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
+    fn handle_log(json: JsonValue, meta: &MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
         if let JsonValue::Object(obj) = json {
             let category = obj.get("category")?.as_str()?;
             let tag = obj.get("tag")?.as_str()?;
@@ -82,10 +82,10 @@ impl UnitJsonLogHandler for TimerUnit {
             };
             Some(AlarmWrapper::<TimerUnit> {
                 alarm_type: crate::MetricsAlarmType::Flow,
-                env: meta.env_name,
+                env: meta.env_name.clone(),
                 content: TimerUnit {
                     send_timestamp: TimeStamp::now(),
-                    public_ip: meta.ip_port,
+                    public_ip: meta.ip_port.clone(),
                     category: category.to_string(),
                     tag: tag.to_string(),
                     count,
@@ -130,7 +130,7 @@ mod test {
             env_name: String::from("test_env_name"),
         };
 
-        let result = TimerUnit::handle_log(json_object, meta);
+        let result = TimerUnit::handle_log(json_object, &meta);
 
         println!("{:?}", result);
         assert_eq!(result.is_some(), true);
