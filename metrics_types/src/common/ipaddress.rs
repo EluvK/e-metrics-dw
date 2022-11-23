@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
+use local_ip_address::linux::local_ip;
 use serde::{Deserialize, Serialize};
 
 use crate::TypeError;
 
 #[derive(Debug)]
-pub(crate) struct IpAddress {
+pub struct IpAddress {
     ip: String,
     port: usize,
 }
@@ -48,5 +49,32 @@ impl FromStr for IpAddress {
                 .parse::<usize>()
                 .map_err(|err| TypeError::DeFromStringError(err.to_string()))?,
         })
+    }
+}
+
+impl IpAddress {
+    pub fn local_ip_default_port() -> IpAddress {
+        let local_ip = local_ip().unwrap();
+        IpAddress {
+            ip: local_ip.to_string(),
+            port: 9000,
+        }
+    }
+
+    pub fn public_ip_default_port(public_ip: String) -> IpAddress {
+        IpAddress {
+            ip: public_ip,
+            port: 9000,
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_ip() {
+        let ip = IpAddress::local_ip_default_port();
+        println!("{:?}", ip);
     }
 }

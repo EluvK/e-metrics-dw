@@ -12,6 +12,7 @@ json = "0.12.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = { version = "1.0", default-features = false }
+local-ip-address = "0.4.9"
 
 [lib]
 name = "metrics_types"

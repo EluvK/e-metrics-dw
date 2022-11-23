@@ -1,4 +1,9 @@
+use json::JsonValue;
 use serde::{Deserialize, Serialize};
+
+use crate::alarm_wrapper::AlarmWrapper;
+use crate::common::MetaInfos;
+use crate::unit_jsonlog_handler::UnitJsonLogHandler;
 
 use super::common::{IpAddress, TimeStamp};
 use super::sql::SqlTable;
@@ -64,6 +69,52 @@ impl SqlTable for FlowUnit {
     }
 }
 
+impl UnitJsonLogHandler for FlowUnit {
+    type UnitType = FlowUnit;
+
+    // {"category":"vhost","tag":"handle_data_ready_called","type":"flow","content":{"count":92,"max_flow":10,"min_flow":1,"sum_flow":131,"avg_flo":1,"tps_flow":131,"tps":"1.39"}}
+    fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
+        if let JsonValue::Object(obj) = json {
+            let category = obj.get("category")?.as_str()?;
+            let tag = obj.get("tag")?.as_str()?;
+            let content = obj.get("content")?;
+            let (count, max_flow, min_flow, sum_flow, avg_flow, tps_flow, tps) = match content {
+                JsonValue::Object(content_obj) => {
+                    let count = content_obj.get("count")?.as_u64()?;
+                    let max_flow = content_obj.get("max_flow")?.as_i64()?;
+                    let min_flow = content_obj.get("min_flow")?.as_i64()?;
+                    let sum_flow = content_obj.get("sum_flow")?.as_i64()?;
+                    let avg_flow = content_obj.get("avg_flow")?.as_i64()?;
+                    let tps_flow = content_obj.get("tps_flow")?.as_i64()?;
+                    let tps = content_obj.get("tps")?.as_f64()?;
+                    (count, max_flow, min_flow, sum_flow, avg_flow, tps_flow, tps)
+                }
+                _ => {
+                    return None;
+                }
+            };
+            Some(AlarmWrapper::<FlowUnit> {
+                alarm_type: crate::MetricsAlarmType::Flow,
+                env: meta.env_name,
+                content: FlowUnit {
+                    send_timestamp: TimeStamp::now(),
+                    public_ip: meta.ip_port,
+                    category: category.to_string(),
+                    tag: tag.to_string(),
+                    count,
+                    max_flow,
+                    min_flow,
+                    sum_flow,
+                    avg_flow,
+                    tps_flow,
+                    tps,
+                },
+            })
+        } else {
+            None
+        }
+    }
+}
 #[cfg(test)]
 mod test {
     use super::*;

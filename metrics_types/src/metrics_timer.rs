@@ -1,4 +1,9 @@
+use json::JsonValue;
 use serde::{Deserialize, Serialize};
+
+use crate::alarm_wrapper::AlarmWrapper;
+use crate::common::MetaInfos;
+use crate::unit_jsonlog_handler::UnitJsonLogHandler;
 
 use super::common::{IpAddress, TimeStamp};
 use super::sql::SqlTable;
@@ -51,6 +56,47 @@ impl SqlTable for TimerUnit {
             self.max_time,
             self.min_time,
             self.avg_time,
+        }
+    }
+}
+
+impl UnitJsonLogHandler for TimerUnit {
+    type UnitType = TimerUnit;
+
+    // {"category":"xcons","tag":"network_message_dispatch","type":"timer","content":{"count":3060,"max_time":93926,"min_time":18,"avg_time":153}}
+    fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
+        if let JsonValue::Object(obj) = json {
+            let category = obj.get("category")?.as_str()?;
+            let tag = obj.get("tag")?.as_str()?;
+            let content = obj.get("content")?;
+            let (count, max_time, min_time, avg_time) = match content {
+                JsonValue::Object(content_obj) => {
+                    let count = content_obj.get("count")?.as_u64()?;
+                    let max_time = content_obj.get("max_time")?.as_u64()?;
+                    let min_time = content_obj.get("min_time")?.as_u64()?;
+                    let avg_time = content_obj.get("avg_time")?.as_u64()?;
+                    (count, max_time, min_time, avg_time)
+                }
+                _ => {
+                    return None;
+                }
+            };
+            Some(AlarmWrapper::<TimerUnit> {
+                alarm_type: crate::MetricsAlarmType::Flow,
+                env: meta.env_name,
+                content: TimerUnit {
+                    send_timestamp: TimeStamp::now(),
+                    public_ip: meta.ip_port,
+                    category: category.to_string(),
+                    tag: tag.to_string(),
+                    count,
+                    max_time,
+                    min_time,
+                    avg_time,
+                },
+            })
+        } else {
+            None
         }
     }
 }

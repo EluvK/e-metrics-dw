@@ -1,4 +1,9 @@
+use json::JsonValue;
 use serde::{Deserialize, Serialize};
+
+use crate::alarm_wrapper::AlarmWrapper;
+use crate::common::MetaInfos;
+use crate::unit_jsonlog_handler::UnitJsonLogHandler;
 
 use super::common::{IpAddress, TimeStamp};
 use super::sql::SqlTable;
@@ -46,6 +51,43 @@ impl SqlTable for CounterUnit {
             self.count,
             self.value
         )
+    }
+}
+
+impl UnitJsonLogHandler for CounterUnit {
+    type UnitType = CounterUnit;
+
+    // {"category":"xvm","tag":"contract_manager_counter","type":"counter","content":{"count":1,"value":1}}
+    fn handle_log(json: JsonValue, meta: MetaInfos) -> Option<AlarmWrapper<Self::UnitType>> {
+        if let JsonValue::Object(obj) = json {
+            let category = obj.get("category")?.as_str()?;
+            let tag = obj.get("tag")?.as_str()?;
+            let content = obj.get("content")?;
+            let (count, value) = match content {
+                JsonValue::Object(content_obj) => {
+                    let count = content_obj.get("count")?.as_u64()?;
+                    let value = content_obj.get("value")?.as_i64()?;
+                    (count, value)
+                }
+                _ => {
+                    return None;
+                }
+            };
+            Some(AlarmWrapper::<CounterUnit> {
+                alarm_type: crate::MetricsAlarmType::Counter,
+                env: meta.env_name,
+                content: CounterUnit {
+                    send_timestamp: TimeStamp::now(),
+                    public_ip: meta.ip_port,
+                    category: category.to_string(),
+                    tag: tag.to_string(),
+                    count,
+                    value,
+                },
+            })
+        } else {
+            None
+        }
     }
 }
 

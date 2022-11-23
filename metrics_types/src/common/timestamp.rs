@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{str::FromStr, time::SystemTime};
 
 use serde::{Deserialize, Serialize};
 
@@ -46,6 +46,14 @@ impl FromStr for TimeStamp {
 }
 
 impl TimeStamp {
+    pub(crate) fn now() -> Self {
+        TimeStamp {
+            ts: SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as u32,
+        }
+    }
     pub(crate) fn data(&self) -> u32 {
         self.ts
     }
