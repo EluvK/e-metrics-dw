@@ -9,8 +9,8 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Method, Request, Response, Server, StatusCode};
 
-use dw_server::metrics_types::MetricsAlarmType;
 use dw_server::redis_conn::RedisConn;
+use metrics_types::MetricsAlarmType;
 
 async fn handle_json_body(data: json::JsonValue, redis_conn: Arc<Mutex<RedisConn>>) -> bool {
     if !data.has_key("alarm_type") {

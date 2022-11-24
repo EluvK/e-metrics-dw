@@ -6,8 +6,8 @@ use serde::de::Deserialize;
 
 use std::time::{Duration, Instant};
 
-use crate::metrics_types::alarm_wrapper::AlarmWrapper;
-use crate::metrics_types::{sql::SqlTable, MetricsAlarmType};
+use metrics_types::alarm_wrapper::AlarmWrapper;
+use metrics_types::{sql::SqlTable, MetricsAlarmType};
 use crate::mysql_conn::MysqlDBConn;
 
 /// Each AlarmType-DB have one Inner type.

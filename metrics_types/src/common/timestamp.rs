@@ -1,8 +1,8 @@
-use std::str::FromStr;
+use std::{str::FromStr, time::SystemTime};
 
 use serde::{Deserialize, Serialize};
 
-use crate::metrics_types::TypeError;
+use crate::TypeError;
 
 #[derive(Debug)]
 pub(crate) struct TimeStamp {
@@ -46,12 +46,15 @@ impl FromStr for TimeStamp {
 }
 
 impl TimeStamp {
+    pub(crate) fn now() -> Self {
+        TimeStamp {
+            ts: SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_secs() as u32,
+        }
+    }
     pub(crate) fn data(&self) -> u32 {
         self.ts
-    }
-
-    #[cfg(test)]
-    pub(crate) fn rand() -> TimeStamp {
-        TimeStamp { ts: 123 }
     }
 }

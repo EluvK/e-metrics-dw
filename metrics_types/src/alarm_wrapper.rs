@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::metrics_types::MetricsAlarmType;
+use crate::MetricsAlarmType;
 
 /// #### AlarmWrapper
 ///

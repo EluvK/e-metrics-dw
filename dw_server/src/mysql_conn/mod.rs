@@ -2,7 +2,7 @@ use mysql_async::Result;
 
 use mysql_async::{prelude::Query, Pool};
 
-use crate::metrics_types::{sql::SqlTable, CounterUnit, FlowUnit, TimerUnit};
+use metrics_types::{sql::SqlTable, CounterUnit, FlowUnit, TimerUnit};
 
 #[derive(Debug)]
 pub struct MysqlDBConn {
@@ -108,41 +108,8 @@ mod test {
         Ok(conn)
     }
 
-    async fn test_create_insert() -> Result<()> {
-        let conn = test_create_conn().await?;
-        let d = CounterUnit::rand();
-        let mut vd = Vec::new();
-        vd.push(d);
-
-        conn.insert(vd).await?;
-        Ok(())
-    }
-
-    async fn test_performance() -> Result<()> {
-        let conn = test_create_conn().await?;
-        let mut vd = Vec::new();
-        for _ in 1..=2000 {
-            let d1 = CounterUnit::rand();
-            vd.push(d1);
-            let d2 = CounterUnit::rand2();
-            vd.push(d2);
-        }
-        conn.insert(vd).await?;
-        Ok(())
-    }
-
     #[test]
     fn test_conn() {
         tokio_test::block_on(test_create_conn()).unwrap();
-    }
-
-    #[test]
-    fn test_insert() {
-        tokio_test::block_on(test_create_insert()).unwrap();
-    }
-
-    #[test]
-    fn test_performance_test() {
-        tokio_test::block_on(test_performance()).unwrap();
     }
 }
