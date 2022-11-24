@@ -203,6 +203,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "concurrent-queue"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd7bef69dc86e3c610e4e7aed41035e2a7ed12e72dd7530f61327a6579a4390b"
+dependencies = [
+ "crossbeam-utils",
+]
+
+[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -321,6 +330,22 @@ checksum = "adfbc57365a37acbd2ebf2b64d7e69bb766e2fea813521ed536f5d0520dcf86c"
 dependencies = [
  "block-buffer",
  "crypto-common",
+]
+
+[[package]]
+name = "dw_client"
+version = "0.1.0"
+dependencies = [
+ "concurrent-queue",
+ "hyper",
+ "json",
+ "lazy_static",
+ "metrics_types",
+ "regex",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-test",
 ]
 
 [[package]]

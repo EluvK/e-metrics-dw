@@ -8,7 +8,7 @@ pub mod alarm_wrapper;
 pub mod sql;
 pub mod unit_jsonlog_handler;
 
-pub use common::MetricsAlarmType;
+pub use common::{MetaInfos, MetricsAlarmType};
 pub use error::TypeError;
 
 pub use metrics_counter::CounterUnit;

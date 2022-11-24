@@ -6,9 +6,9 @@ use serde::de::Deserialize;
 
 use std::time::{Duration, Instant};
 
+use crate::mysql_conn::MysqlDBConn;
 use metrics_types::alarm_wrapper::AlarmWrapper;
 use metrics_types::{sql::SqlTable, MetricsAlarmType};
-use crate::mysql_conn::MysqlDBConn;
 
 /// Each AlarmType-DB have one Inner type.
 /// reserved for futher function.
@@ -89,7 +89,7 @@ where
     pub async fn cache(&mut self, data_str: &'de str) -> Result<()> {
         // println!("{}", data_str);
         let wrapped_unit: AlarmWrapper<UnitType> = serde_json::from_str(data_str).map_err(|e| {
-            println!("{}", e);
+            println!("serde_json from_str err: {}, origin_data:{}", e, data_str);
             mysql_async::Error::Other(Box::from("wrapped unit deserialize error"))
         })?;
         let db_name = wrapped_unit.env;

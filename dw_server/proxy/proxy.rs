@@ -1,5 +1,6 @@
 #![feature(is_some_and)]
 
+use futures_util::future;
 use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -12,21 +13,21 @@ use hyper::{Body, Method, Request, Response, Server, StatusCode};
 use dw_server::redis_conn::RedisConn;
 use metrics_types::MetricsAlarmType;
 
-async fn handle_json_body(data: json::JsonValue, redis_conn: Arc<Mutex<RedisConn>>) -> bool {
-    if !data.has_key("alarm_type") {
-        println!("no alarm type description");
-        return false;
-    }
-    match MetricsAlarmType::from_str(&data["alarm_type"].to_string()) {
-        Ok(key) => {
-            let mut lock = redis_conn.lock().await;
-            match lock.list_push(&key, data.dump()) {
-                Ok(_) => true,
-                Err(_) => false,
+async fn handle_json_body(data: json::JsonValue, redis_conn: Arc<Mutex<RedisConn>>) {
+    let tasks: Vec<_> = data
+        .members()
+        .filter(|&obj| obj.has_key("alarm_type"))
+        .map(|obj| async {
+            if let Ok(key) = MetricsAlarmType::from_str(&obj["alarm_type"].to_string()) {
+                let mut lock = redis_conn.lock().await;
+                lock.list_push(&key, obj.dump()).unwrap_or_else(|_err| {
+                    // todo add log.
+                    println!("handle data error {}", _err.to_string());
+                });
             }
-        }
-        Err(_) => false,
-    }
+        })
+        .collect();
+    future::join_all(tasks).await;
 }
 
 /// This is our service handler. It receives a Request, routes on its
@@ -67,11 +68,8 @@ async fn handle(
                 println!("json parse error or {:?}", whole_body);
                 return Ok(unprocessable_entity().unwrap());
             }
-            // println!("body content: {:?}", json_body);
-            if !handle_json_body(json_body, redis_conn).await {
-                println!("handle data error");
-                return Ok(unprocessable_entity().unwrap());
-            }
+            println!("body content: {:?}", json_body);
+            handle_json_body(json_body, redis_conn).await;
 
             Ok(Response::new(Body::from("ok")))
         }

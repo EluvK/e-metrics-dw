@@ -1,0 +1,27 @@
+[package]
+name = "dw_client"
+version = "0.1.0"
+edition = "2021"
+authors = ["Charles.Liu@upblocks.io"]
+description = "Data Warehouse Project for TOP-Chain, Client Endpoint"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+concurrent-queue = "2.0.0"
+hyper = { version = "0.14", features = ["full"] }
+thiserror = { version = "1.0", default-features = false }
+tokio = { version = "1.21", features = ["full"] }
+metrics_types = { version = "0.1.0", path = "../metrics_types" }
+regex = "1.7.0"
+lazy_static = "1.4.0"
+json = "0.12.4"
+serde_json = "1.0"
+
+[dev-dependencies]
+tokio-test = "0.4.2"
+
+
+[[bin]]
+name = "dw_client_agent"
+path = "agent/agent.rs"
