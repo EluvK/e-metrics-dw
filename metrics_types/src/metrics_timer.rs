@@ -81,7 +81,7 @@ impl UnitJsonLogHandler for TimerUnit {
                 }
             };
             Some(AlarmWrapper::<TimerUnit> {
-                alarm_type: crate::MetricsAlarmType::Flow,
+                alarm_type: crate::MetricsAlarmType::Timer,
                 env: meta.env_name.clone(),
                 content: TimerUnit {
                     send_timestamp: TimeStamp::now(),
