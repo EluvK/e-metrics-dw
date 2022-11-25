@@ -6,6 +6,6 @@ Monitor metrics log file, scan each line's log, convert metrics log to net-packe
 
 The data flows like this:
 
-`log file(IO) - metrics log handler(CPU) - net packet sent(IO)`
+`Read log file(IO) - Processed by metrics log handler(CPU) - Send net packet (IO)`
 
-So two async queue is needed.
+So two async cache queue is needed.
