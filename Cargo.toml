@@ -3,5 +3,6 @@ resolver = "2"
 
 members = [
     "metrics_types",
-    "dw_server"
+    "dw_server",
+    "dw_client"
 ]

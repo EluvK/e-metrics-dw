@@ -1,6 +1,8 @@
 use std::str::FromStr;
 
+use lazy_static::lazy_static;
 use local_ip_address::linux::local_ip;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::TypeError;
@@ -40,8 +42,17 @@ impl FromStr for IpAddress {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let r = s.split_once(':').ok_or(TypeError::DeFromStringError(
-            "string split port error".into(),
+            "ipaddress string split port error".into(),
         ))?;
+        lazy_static! {
+            static ref RE: Regex =
+                Regex::new(r#"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$"#).unwrap();
+        }
+        if !RE.is_match(r.0) {
+            return Err(TypeError::DeFromStringError(
+                "ipaddress string ip format error".into(),
+            ));
+        }
         Ok(IpAddress {
             ip: String::from(r.0),
             port: r
