@@ -7,7 +7,7 @@ use tokio::{
     fs::File,
     io::{AsyncBufReadExt, BufReader},
     io::{AsyncSeekExt, SeekFrom},
-    join,
+    select,
 };
 
 use regex::Regex;
@@ -29,9 +29,6 @@ impl LogHandler {
         log_path: String,
         env_name: String,
     ) -> Result<Self, ClientError> {
-        if !std::path::Path::exists(std::path::Path::new(&log_path)) {
-            return Err(ClientError::FileIOError(String::from("log file not exist")));
-        }
         Ok(Self {
             log_path,
             _env_name: env_name.clone(),
@@ -43,24 +40,67 @@ impl LogHandler {
         let metrics_log_queue = Arc::new(ConcurrentQueue::<String>::unbounded());
         let metrics_send_queue = Arc::new(ConcurrentQueue::<String>::unbounded());
 
-        let r = join!(
-            self.monitor_file(metrics_log_queue.clone()),
-            self.handle_metrics_log(metrics_log_queue.clone(), metrics_send_queue.clone()),
-            self.send_alarm(metrics_send_queue.clone())
-        );
-        r.0.and(r.1).and(r.2)
+        select! {
+            Err(e) = self.loop_monitor_file(metrics_log_queue.clone()) => {
+                Err(e)
+            },
+            Err(e) = self.handle_metrics_log(metrics_log_queue.clone(), metrics_send_queue.clone()) => {
+                Err(e)
+            },
+            Err(e) = self.send_alarm(metrics_send_queue.clone()) => {
+                Err(e)
+            },
+        }
+    }
+
+    async fn loop_monitor_file(
+        &self,
+        metrics_log_queue: Arc<ConcurrentQueue<String>>,
+    ) -> Result<!, ClientError> {
+        let mut begin_pos = 0;
+        loop {
+            if !std::path::Path::exists(std::path::Path::new(&self.log_path)) {
+                // file not even exist.
+                println!("file not even exist."); // debug
+                tokio::time::sleep(Duration::from_secs(5)).await;
+                continue;
+            }
+            // TODO this part of logic code is a mess... so is `monitor_file` method
+            // TODO (ref)
+            match File::open(&self.log_path).await {
+                Err(_) => {
+                    // file open fail.
+                    println!("file open fail."); // debug
+                    tokio::time::sleep(Duration::from_secs(5)).await;
+                }
+                Ok(file) => match self
+                    .monitor_file(metrics_log_queue.clone(), file, begin_pos)
+                    .await
+                {
+                    Ok(next_read_pos) => {
+                        begin_pos = next_read_pos;
+                    }
+                    Err(e) => {
+                        // error while monitor file, should be bug or file io error?
+                        println!("ERROR: loop_monitor_file {}", e.to_string());
+                        tokio::time::sleep(Duration::from_secs(1)).await;
+                    }
+                },
+            }
+        }
     }
 
     async fn monitor_file(
         &self,
         metrics_log_queue: Arc<ConcurrentQueue<String>>,
-    ) -> Result<!, ClientError> {
-        let file = File::open(&self.log_path).await?;
+        file: File,
+        last_read_pos: u64,
+    ) -> Result<u64, ClientError> {
         let mut buf_reader = BufReader::new(file);
-
-        let mut last_read_pos: u64 = 0;
+        let mut last_read_pos = last_read_pos;
         let mut file_might_stop_count: usize = 0;
-        loop {
+
+        let next_read_pos = loop {
             let mut content = String::new();
             let _ = buf_reader.seek(SeekFrom::Start(last_read_pos)).await?;
             buf_reader.read_line(&mut content).await?;
@@ -82,11 +122,15 @@ impl LogHandler {
                     file_might_stop_count = 0;
                     if file_end_pos < new_pos {
                         // re-begin read file from begining.
-                        last_read_pos = 0;
+                        // last_read_pos = 0;
+                        break 0;
+                    } else if file_end_pos == new_pos {
+                        break file_end_pos;
                     }
                 }
             }
-        }
+        };
+        return Ok(next_read_pos);
     }
 
     async fn handle_metrics_log(
@@ -188,8 +232,14 @@ impl LogHandler {
             .uri("http://127.0.0.1:3000/api/alarm") // TODO make uri para
             .header("content-type", "application/json")
             .body(Body::from(data))?;
-        let resp = Client::new().request(req).await?;
-        println!("resp: {:?}", resp);
+        match Client::new().request(req).await {
+            Ok(resp) => {
+                println!("resp: {:?}", resp);
+            }
+            Err(e) => {
+                println!("send alarm err: {}", e.to_string());
+            }
+        }
         Ok(())
     }
 

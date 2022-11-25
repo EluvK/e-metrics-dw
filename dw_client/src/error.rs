@@ -13,6 +13,9 @@ pub enum ClientError {
 
     #[error("Metrics Type error {0}")]
     MetricsTypeError(String),
+
+    #[error("Custom Error {0}")]
+    CustomError(String),
 }
 
 impl From<std::io::Error> for ClientError {
