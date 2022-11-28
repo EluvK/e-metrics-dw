@@ -85,7 +85,7 @@ impl UnitJsonLogHandler for TimerUnit {
                 env: meta.env_name.clone(),
                 content: TimerUnit {
                     send_timestamp: TimeStamp::now(),
-                    public_ip: meta.ip_port.clone(),
+                    public_ip: meta.node_ip_port.clone(),
                     category: category.to_string(),
                     tag: tag.to_string(),
                     count,
@@ -103,9 +103,10 @@ impl UnitJsonLogHandler for TimerUnit {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::str::FromStr;
     #[test]
     fn test_metrics_json() {
-        let timer_unit_str = r#"{"send_timestamp":"123456","public_ip":"123.456.43.21:1024","category":"some_cat","tag":"some_tag","count":10,"max_time":100,"min_time":100,"avg_time":100}"#;
+        let timer_unit_str = r#"{"send_timestamp":"123456","public_ip":"123.12.34.21:1024","category":"some_cat","tag":"some_tag","count":10,"max_time":100,"min_time":100,"avg_time":100}"#;
 
         let timer_unit = serde_json::from_str::<TimerUnit>(timer_unit_str).unwrap();
 
@@ -126,7 +127,8 @@ mod test {
         // println!("{:?}", json_object);
 
         let meta = MetaInfos {
-            ip_port: IpAddress::local_ip_default_port(),
+            node_ip_port: IpAddress::local_ip_default_port(),
+            server_ip_port: IpAddress::from_str("127.0.0.1:3000").unwrap(),
             env_name: String::from("test_env_name"),
         };
 

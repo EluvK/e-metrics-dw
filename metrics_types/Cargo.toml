@@ -9,6 +9,7 @@ description = "Data Warehouse Project for TOP-Chain, Metrics Types"
 
 [dependencies]
 json = "0.12.4"
+hyper = { version = "0.14", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = { version = "1.0", default-features = false }
@@ -21,3 +22,4 @@ name = "metrics_types"
 crate-type = ["lib"]
 
 [dev-dependencies]
+tokio-test = "0.4.2"

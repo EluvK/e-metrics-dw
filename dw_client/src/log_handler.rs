@@ -24,15 +24,16 @@ pub struct LogHandler {
 }
 
 impl LogHandler {
-    pub fn new(
-        self_ip_port: String,
+    pub async fn new(
+        server_ip_port: String,
+        self_address_use_local: bool,
         log_path: String,
         env_name: String,
     ) -> Result<Self, ClientError> {
         Ok(Self {
             log_path,
             _env_name: env_name.clone(),
-            meta: MetaInfos::new(self_ip_port, env_name)?,
+            meta: MetaInfos::new(server_ip_port, self_address_use_local, env_name).await?,
         })
     }
 
@@ -292,7 +293,7 @@ mod test {
     use super::*;
 
     async fn do_send_test() {
-        let data = r#"[{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":1983,"max_flow":10,"min_flow":1,"sum_flow":2463,"avg_flow":1,"tps_flow":1620,"tps":8.99}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":3340,"max_flow":10,"min_flow":1,"sum_flow":4146,"avg_flow":1,"tps_flow":1683,"tps":9.34}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xcons","tag":"network_message_dispatch","count":3060,"max_time":93926,"min_time":18,"avg_time":153}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xsync","tag":"network_message_dispatch","count":2630,"max_time":45861,"min_time":13,"avg_time":118}},{"alarm_type":"counter","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xvm","tag":"contract_manager_counter","count":1,"value":1}},{"alarm_type":"counter","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xvm","tag":"contract_role_context_counter","count":44,"value":16}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":1983,"max_flow":10,"min_flow":1,"sum_flow":2463,"avg_flow":1,"tps_flow":1620,"tps":8.99}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":3340,"max_flow":10,"min_flow":1,"sum_flow":4146,"avg_flow":1,"tps_flow":1683,"tps":9.34}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xcons","tag":"network_message_dispatch","count":3060,"max_time":93926,"min_time":18,"avg_time":153}}]"#;
+        let data = r#"[{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":1983,"max_flow":10,"min_flow":1,"sum_flow":2463,"avg_flow":1,"tps_flow":1620,"tps":8.99}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":3340,"max_flow":10,"min_flow":1,"sum_flow":4146,"avg_flow":1,"tps_flow":1683,"tps":9.34}},{"alarm_type":"timer","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xcons","tag":"network_message_dispatch","count":3060,"max_time":93926,"min_time":18,"avg_time":153}},{"alarm_type":"timer","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xsync","tag":"network_message_dispatch","count":2630,"max_time":45861,"min_time":13,"avg_time":118}},{"alarm_type":"counter","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xvm","tag":"contract_manager_counter","count":1,"value":1}},{"alarm_type":"counter","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xvm","tag":"contract_role_context_counter","count":44,"value":16}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":1983,"max_flow":10,"min_flow":1,"sum_flow":2463,"avg_flow":1,"tps_flow":1620,"tps":8.99}},{"alarm_type":"flow","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"vhost","tag":"handle_data_ready_called","count":3340,"max_flow":10,"min_flow":1,"sum_flow":4146,"avg_flow":1,"tps_flow":1683,"tps":9.34}},{"alarm_type":"timer","env":"test_db","content":{"send_timestamp":"1669269373","public_ip":"127.0.0.1:9000","category":"xcons","tag":"network_message_dispatch","count":3060,"max_time":93926,"min_time":18,"avg_time":153}}]"#;
         let req = Request::builder()
             .method(Method::POST)
             .uri("http://127.0.0.1:3000/api/alarm")

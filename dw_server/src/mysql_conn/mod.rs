@@ -103,7 +103,7 @@ mod test {
     use super::*;
 
     async fn test_create_conn() -> Result<MysqlDBConn> {
-        let test_url_opt = String::from(crate::config::CONSUMER_MYSQL_URL);
+        let test_url_opt = String::from("dw-consumer:consumerPswd!1@localhost:3306");
         let conn = MysqlDBConn::new(test_url_opt, &String::from("test_db")).await?;
         Ok(conn)
     }

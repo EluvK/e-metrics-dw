@@ -51,7 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let log_file = args.log_file;
     let env_name = format_env_name(args.env_name)?;
 
-    let log_handler = LogHandler::new(server_address, log_file, env_name)?;
+    let log_handler = LogHandler::new(server_address, args.local, log_file, env_name).await?;
     let _ = log_handler.start().await?;
 
     #[allow(unreachable_code)]

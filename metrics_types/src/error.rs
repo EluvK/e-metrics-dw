@@ -7,4 +7,7 @@ pub enum TypeError {
 
     #[error("metrics alarm type invalid")]
     MetricsAlarmTypeInvalid,
+
+    #[error("type error custom: {0}")]
+    CustomError(String),
 }
