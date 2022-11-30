@@ -230,7 +230,7 @@ impl LogHandler {
         println!("do send: {}", data);
         let req = Request::builder()
             .method(Method::POST)
-            .uri("http://127.0.0.1:3000/api/alarm") // TODO make uri para
+            .uri(self.meta.alarm_api())
             .header("content-type", "application/json")
             .body(Body::from(data))?;
         match Client::new().request(req).await {
