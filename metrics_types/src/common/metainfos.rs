@@ -5,7 +5,7 @@ use crate::TypeError;
 use super::IpAddress;
 
 /// Meta Data generated at begining, used to fill Metrics Unit's blank
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MetaInfos {
     pub server_ip_port: IpAddress,
     pub node_ip_port: IpAddress,
@@ -33,5 +33,17 @@ impl MetaInfos {
 
     pub fn alarm_api(&self) -> &str {
         &self.server_alarm_api
+    }
+}
+
+impl std::fmt::Display for MetaInfos {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "current node({}) alarm to server({}) with env_name: {}",
+            self.node_ip_port.to_string().as_str(),
+            self.server_ip_port.to_string().as_str(),
+            self.env_name
+        )
     }
 }

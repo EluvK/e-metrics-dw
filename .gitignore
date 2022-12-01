@@ -1,3 +1,4 @@
 target/
 local/
 dw_server/config.ini
+client_status
