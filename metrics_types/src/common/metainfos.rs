@@ -10,7 +10,7 @@ pub struct MetaInfos {
     pub server_ip_port: IpAddress,
     pub node_ip_port: IpAddress,
     pub env_name: String,
-    server_alarm_api: String,
+    pub(crate) server_alarm_api: String,
 }
 
 impl MetaInfos {

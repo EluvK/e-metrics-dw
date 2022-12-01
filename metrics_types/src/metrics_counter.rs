@@ -120,6 +120,7 @@ mod test {
             node_ip_port: IpAddress::local_ip_default_port(),
             server_ip_port: IpAddress::from_str("127.0.0.1:3000").unwrap(),
             env_name: String::from("test_env_name"),
+            server_alarm_api: String::from("http://127.0.0.1:3000/api/alarm"),
         };
 
         let result = CounterUnit::handle_log(json_object, &meta);
