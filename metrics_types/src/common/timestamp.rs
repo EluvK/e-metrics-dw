@@ -4,8 +4,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::TypeError;
 
+#[cfg(feature = "fake_data")]
+use fake::{Dummy, Fake};
+
 #[derive(Debug)]
+#[cfg_attr(feature = "fake_data", derive(Dummy))]
 pub(crate) struct TimeStamp {
+    #[cfg_attr(feature = "fake_data", dummy(faker = "1670000000..1680000000"))]
     ts: u32,
 }
 

@@ -8,19 +8,56 @@ use crate::unit_jsonlog_handler::UnitJsonLogHandler;
 use super::common::{IpAddress, TimeStamp};
 use super::sql::SqlTable;
 
+#[cfg(feature = "fake_data")]
+use fake::faker::lorem::en::Word;
+#[cfg(feature = "fake_data")]
+use fake::{Dummy, Fake, Faker};
+
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "fake_data", derive(Dummy))]
 pub struct FlowUnit {
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     send_timestamp: TimeStamp,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     public_ip: IpAddress,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     category: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     tag: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..20000"))]
     count: u64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10000..20000"))]
     max_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..200"))]
     min_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "100..200000"))]
     sum_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "1000..20000"))]
     avg_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..20000"))]
     tps_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10.0..20000.0"))]
     tps: f64,
+}
+
+#[cfg(feature = "fake_data")]
+impl FlowUnit {
+    pub fn revert_to_log(self) -> json::JsonValue {
+        json::object! {
+            category:self.category,
+            tag:self.tag,
+            type:"flow",
+            content: json::object!{
+                count:self.count,
+                max_flow:self.max_flow,
+                min_flow:self.min_flow,
+                sum_flow:self.sum_flow,
+                avg_flow:self.avg_flow,
+                tps_flow:self.tps_flow,
+                tps:self.tps.to_string(),
+            }
+        }
+    }
 }
 
 impl SqlTable for FlowUnit {
@@ -97,7 +134,7 @@ impl UnitJsonLogHandler for FlowUnit {
                 env: meta.env_name.clone(),
                 content: FlowUnit {
                     send_timestamp: TimeStamp::now(),
-                    public_ip: meta.ip_port.clone(),
+                    public_ip: meta.node_ip_port.clone(),
                     category: category.to_string(),
                     tag: tag.to_string(),
                     count,
@@ -117,9 +154,10 @@ impl UnitJsonLogHandler for FlowUnit {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::str::FromStr;
     #[test]
     fn test_metrics_json() {
-        let flow_unit_str = r#"{"send_timestamp":"123456","public_ip":"123.456.43.21:1024","category":"some_cat","tag":"some_tag","count":10,"max_flow":1000,"min_flow":10,"sum_flow":1001123,"avg_flow":133,"tps_flow":1093,"tps":100.212}"#;
+        let flow_unit_str = r#"{"send_timestamp":"123456","public_ip":"123.12.34.21:1024","category":"some_cat","tag":"some_tag","count":10,"max_flow":1000,"min_flow":10,"sum_flow":1001123,"avg_flow":133,"tps_flow":1093,"tps":100.212}"#;
 
         let flow_unit = serde_json::from_str::<FlowUnit>(flow_unit_str).unwrap();
 
@@ -140,8 +178,10 @@ mod test {
         println!("{:?}", json_object);
 
         let meta = MetaInfos {
-            ip_port: IpAddress::local_ip_default_port(),
+            node_ip_port: IpAddress::local_ip_default_port(),
+            server_ip_port: IpAddress::from_str("127.0.0.1:3000").unwrap(),
             env_name: String::from("test_env_name"),
+            server_alarm_api: String::from("http://127.0.0.1:3000/api/alarm"),
         };
 
         let result = FlowUnit::handle_log(json_object, &meta);

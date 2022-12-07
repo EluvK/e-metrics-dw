@@ -68,7 +68,7 @@ async fn handle(
                 println!("json parse error or {:?}", whole_body);
                 return Ok(unprocessable_entity().unwrap());
             }
-            println!("body content: {:?}", json_body);
+            // println!("body content: {:?}", json_body);
             handle_json_body(json_body, redis_conn).await;
 
             Ok(Response::new(Body::from("ok")))
@@ -98,8 +98,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // let client = redis::Client::open("redis://127.0.0.1/")?;
     // let mut con = client.get_connection()?;
 
-    let addr = ([127, 0, 0, 1], 3000).into();
-    // let addr = ([0, 0, 0, 0], 3000).into();
+    // let addr = ([127, 0, 0, 1], 3000).into();
+    let addr = ([0, 0, 0, 0], 3000).into(); // Todo port args config.
 
     let rc = RedisConn::new().expect("Create redis connnection error");
     let redis_conn = Arc::new(Mutex::new(rc));

@@ -18,6 +18,7 @@ serde_json = "1.0"
 thiserror = { version = "1.0", default-features = false }
 tokio = { version = "1.21", features = ["full"] }
 metrics_types = {version = "0.1.0", path = "../metrics_types"}
+clap = { version = "4.0", features = ["derive"] }
 
 [dev-dependencies]
 tokio-test = "0.4.2"

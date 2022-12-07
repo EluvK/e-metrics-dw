@@ -26,11 +26,10 @@ impl<UnitType> ConsumerBackendInner<UnitType>
 where
     UnitType: SqlTable + Send + Sync,
 {
-    async fn new(db_name: &String) -> Result<Self> {
+    async fn new(mysql_url: String, db_name: &String) -> Result<Self> {
         Ok(ConsumerBackendInner {
             cache_data: Vec::new(),
-            mysql_conn: MysqlDBConn::new(String::from(crate::config::CONSUMER_MYSQL_URL), db_name)
-                .await?,
+            mysql_conn: MysqlDBConn::new(mysql_url, db_name).await?,
             commit_time: Instant::now(),
         })
     }
@@ -73,6 +72,7 @@ where
 /// So the number of `ConsumerBackend` object should be equal to the number of MetricsAlarmType.
 #[derive(Debug)]
 pub struct ConsumerBackend<UnitType> {
+    mysql_url: String,
     inner_cache: HashMap<String, ConsumerBackendInner<UnitType>>,
 }
 
@@ -80,8 +80,9 @@ impl<'de, UnitType> ConsumerBackend<UnitType>
 where
     UnitType: Deserialize<'de> + SqlTable + Send + Sync,
 {
-    pub fn new(_alarm_type: MetricsAlarmType) -> Self {
+    pub fn new(mysql_url: String, _alarm_type: MetricsAlarmType) -> Self {
         ConsumerBackend {
+            mysql_url,
             inner_cache: HashMap::new(),
         }
     }
@@ -94,8 +95,10 @@ where
         })?;
         let db_name = wrapped_unit.env;
         if !self.inner_cache.contains_key(&db_name) {
-            self.inner_cache
-                .insert(db_name.clone(), ConsumerBackendInner::new(&db_name).await?);
+            self.inner_cache.insert(
+                db_name.clone(),
+                ConsumerBackendInner::new(self.mysql_url.clone(), &db_name).await?,
+            );
         }
         self.inner_cache
             .get_mut(&db_name)

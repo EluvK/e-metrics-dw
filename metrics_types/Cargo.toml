@@ -9,15 +9,22 @@ description = "Data Warehouse Project for TOP-Chain, Metrics Types"
 
 [dependencies]
 json = "0.12.4"
+hyper = { version = "0.14", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = { version = "1.0", default-features = false }
 local-ip-address = "0.4.9"
 regex = "1.7.0"
 lazy_static = "1.4.0"
+fake = { version = "2.5", features = ["derive"], optional = true }
+rand = { version = "0.8", optional = true }
+
+[features]
+fake_data = ["fake", "rand"]
 
 [lib]
 name = "metrics_types"
 crate-type = ["lib"]
 
 [dev-dependencies]
+tokio-test = "0.4.2"

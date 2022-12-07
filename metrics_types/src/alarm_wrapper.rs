@@ -14,7 +14,7 @@ use crate::MetricsAlarmType;
 /// ``` json
 /// {
 ///    "send_timestamp": "123456",
-///    "public_ip": "123.456.43.21:1024",
+///    "public_ip": "123.12.34.21:1024",
 ///    "category": "some_cat",
 ///    "tag": "some_tag",
 ///    "count": 10,
@@ -30,7 +30,7 @@ use crate::MetricsAlarmType;
 ///     "env": "db_name",
 ///     "content": {
 ///         "send_timestamp": "123456",
-///         "public_ip": "123.456.43.21:1024",
+///         "public_ip": "123.12.34.21:1024",
 ///         "category": "some_cat",
 ///         "tag": "some_tag",
 ///         "count": 10,

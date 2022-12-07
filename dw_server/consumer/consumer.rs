@@ -1,5 +1,6 @@
 use std::num::NonZeroUsize;
 
+use clap::Parser;
 use futures_util::future;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -15,10 +16,13 @@ const FETCH_REDIS_DATA_MAX_SIZE: usize = 100;
 
 macro_rules! HANDLE_UNIT {
     ($func:ident, $unit_type:ident, $alarm_type:expr) => {
-        async fn $func() {
+        async fn $func(mysql_url: String) {
             let mut rc = RedisConn::new()
                 .expect(format!("Create redis connection error {:?}", stringify!($func)).as_str());
-            let cb = Arc::new(Mutex::new(ConsumerBackend::<$unit_type>::new($alarm_type)));
+            let cb = Arc::new(Mutex::new(ConsumerBackend::<$unit_type>::new(
+                mysql_url,
+                $alarm_type,
+            )));
             loop {
                 if let Ok(fetch_data) = rc.list_pop_multi(
                     &$alarm_type,
@@ -50,8 +54,20 @@ HANDLE_UNIT!(handle_counter, CounterUnit, MetricsAlarmType::Counter);
 HANDLE_UNIT!(handle_timer, TimerUnit, MetricsAlarmType::Timer);
 HANDLE_UNIT!(handle_flow, FlowUnit, MetricsAlarmType::Flow);
 
+#[derive(Parser)]
+struct ConsumerArgs {
+    /// mysql_url
+    #[clap(short = 'm', long = "mysql_url")]
+    mysql_url: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let _ = join!(handle_counter(), handle_timer(), handle_flow());
+    let args = ConsumerArgs::parse();
+    let _ = join!(
+        handle_counter(args.mysql_url.clone()),
+        handle_timer(args.mysql_url.clone()),
+        handle_flow(args.mysql_url.clone())
+    );
     Ok(())
 }
