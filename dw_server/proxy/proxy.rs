@@ -68,7 +68,7 @@ async fn handle(
                 println!("json parse error or {:?}", whole_body);
                 return Ok(unprocessable_entity().unwrap());
             }
-            println!("body content: {:?}", json_body);
+            // println!("body content: {:?}", json_body);
             handle_json_body(json_body, redis_conn).await;
 
             Ok(Response::new(Body::from("ok")))

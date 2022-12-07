@@ -33,6 +33,7 @@ impl ClientStatusInfo {
             net_info: NetPacketInfo {
                 send_count: 0,
                 success_count: 0,
+                latest_send_time: Utc::now(),
             },
         }
     }
@@ -46,7 +47,7 @@ impl ClientStatusInfo {
         f.write_all(
             format!(
                 concat!(
-                    "=======================  Client Status  ========================\n",
+                    "======================  DW Agent Status  =======================\n",
                     "================================================================\n",
                     "basic info:\n{}\n",
                     "================================================================\n",
@@ -80,6 +81,7 @@ impl ClientStatusInfo {
         self.queue_info.send_queue_current = sz;
     }
     pub fn net_queue_count(&mut self, succ: bool) {
+        self.net_info.latest_send_time = Utc::now();
         self.net_info.send_count += 1;
         if succ {
             self.net_info.success_count += 1;
@@ -150,14 +152,15 @@ impl std::fmt::Display for QueueInfo {
 struct NetPacketInfo {
     send_count: u64,
     success_count: u64,
+    latest_send_time: DateTime<Utc>,
 }
 
 impl std::fmt::Display for NetPacketInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "  * net packet: {}/{}",
-            self.success_count, self.send_count
+            concat!("  * net packet: {}/{}\n", "  * last send time: {}"),
+            self.success_count, self.send_count, self.latest_send_time
         )
     }
 }
