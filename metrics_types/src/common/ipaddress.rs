@@ -8,9 +8,17 @@ use serde::{Deserialize, Serialize};
 
 use crate::TypeError;
 
+#[cfg(feature = "fake_data")]
+use fake::faker::internet::en::IP;
+#[cfg(feature = "fake_data")]
+use fake::{Dummy, Fake};
+
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "fake_data", derive(Dummy))]
 pub struct IpAddress {
+    #[cfg_attr(feature = "fake_data", dummy(faker = "IP()"))]
     ip: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "1000..2000"))]
     port: usize,
 }
 

@@ -8,19 +8,56 @@ use crate::unit_jsonlog_handler::UnitJsonLogHandler;
 use super::common::{IpAddress, TimeStamp};
 use super::sql::SqlTable;
 
+#[cfg(feature = "fake_data")]
+use fake::faker::lorem::en::Word;
+#[cfg(feature = "fake_data")]
+use fake::{Dummy, Fake, Faker};
+
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "fake_data", derive(Dummy))]
 pub struct FlowUnit {
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     send_timestamp: TimeStamp,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     public_ip: IpAddress,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     category: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     tag: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..20000"))]
     count: u64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10000..20000"))]
     max_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..200"))]
     min_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "100..200000"))]
     sum_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "1000..20000"))]
     avg_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..20000"))]
     tps_flow: i64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10.0..20000.0"))]
     tps: f64,
+}
+
+#[cfg(feature = "fake_data")]
+impl FlowUnit {
+    pub fn revert_to_log(self) -> json::JsonValue {
+        json::object! {
+            category:self.category,
+            tag:self.tag,
+            type:"flow",
+            content: json::object!{
+                count:self.count,
+                max_flow:self.max_flow,
+                min_flow:self.min_flow,
+                sum_flow:self.sum_flow,
+                avg_flow:self.avg_flow,
+                tps_flow:self.tps_flow,
+                tps:self.tps.to_string(),
+            }
+        }
+    }
 }
 
 impl SqlTable for FlowUnit {

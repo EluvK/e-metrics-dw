@@ -8,14 +8,41 @@ use crate::unit_jsonlog_handler::UnitJsonLogHandler;
 use super::common::{IpAddress, TimeStamp};
 use super::sql::SqlTable;
 
+#[cfg(feature = "fake_data")]
+use fake::faker::lorem::en::Word;
+#[cfg(feature = "fake_data")]
+use fake::{Dummy, Fake, Faker};
+
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "fake_data", derive(Dummy))]
 pub struct CounterUnit {
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     send_timestamp: TimeStamp,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     public_ip: IpAddress,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     category: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     tag: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..20000"))]
     count: u64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..2000000"))]
     value: i64,
+}
+
+#[cfg(feature = "fake_data")]
+impl CounterUnit {
+    pub fn revert_to_log(self) -> json::JsonValue {
+        json::object! {
+            category:self.category,
+            tag:self.tag,
+            type:"counter",
+            content: json::object!{
+                count:self.count,
+                value:self.value,
+            }
+        }
+    }
 }
 
 impl SqlTable for CounterUnit {

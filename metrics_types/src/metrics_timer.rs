@@ -8,16 +8,47 @@ use crate::unit_jsonlog_handler::UnitJsonLogHandler;
 use super::common::{IpAddress, TimeStamp};
 use super::sql::SqlTable;
 
+#[cfg(feature = "fake_data")]
+use fake::faker::lorem::en::Word;
+#[cfg(feature = "fake_data")]
+use fake::{Dummy, Fake, Faker};
+
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "fake_data", derive(Dummy))]
 pub struct TimerUnit {
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     send_timestamp: TimeStamp,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Faker"))]
     public_ip: IpAddress,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     category: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "Word()"))]
     tag: String,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..20000"))]
     count: u64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10000..20000"))]
     max_time: u64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..200"))]
     min_time: u64,
+    #[cfg_attr(feature = "fake_data", dummy(faker = "10..20000"))]
     avg_time: u64,
+}
+
+#[cfg(feature = "fake_data")]
+impl TimerUnit {
+    pub fn revert_to_log(self) -> json::JsonValue {
+        json::object! {
+            category:self.category,
+            tag:self.tag,
+            type:"timer",
+            content: json::object!{
+                count:self.count,
+                max_time:self.max_time,
+                min_time:self.min_time,
+                avg_time:self.avg_time,
+            }
+        }
+    }
 }
 
 impl SqlTable for TimerUnit {

@@ -19,11 +19,23 @@ json = "0.12.4"
 serde_json = "1.0"
 clap = { version = "4.0", features = ["derive"] }
 chrono = "0.4"
+fake = { version = "2.5", features = ["derive"], optional = true }
+rand = { version = "0.8", optional = true }
+
 
 [dev-dependencies]
 tokio-test = "0.4.2"
 
 
+[features]
+default = []
+fake_data = ["fake", "rand", "metrics_types/fake_data"]
+
 [[bin]]
 name = "dw_client_agent"
 path = "agent/agent.rs"
+
+[[bin]]
+name = "dw_data_generator"
+path = "data_generator/data_generator.rs"
+required-features = ["fake_data"]
