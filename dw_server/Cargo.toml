@@ -1,9 +1,9 @@
 [package]
 name = "dw_server"
-version = "0.1.0"
+version = "0.1.0-beta"
 edition = "2021"
 authors = ["Charles.Liu@upblocks.io"]
-description = "Data Warehouse Project for TOP-Chain, Server Endpoint"
+description = "Data Warehouse Project, Server Endpoint"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,7 +17,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = { version = "1.0", default-features = false }
 tokio = { version = "1.21", features = ["full"] }
-metrics_types = {version = "0.1.0", path = "../metrics_types"}
+metrics_types = {version = "0.1.0-beta", path = "../metrics_types"}
 clap = { version = "4.0", features = ["derive"] }
 
 [dev-dependencies]

@@ -567,7 +567,7 @@ dependencies = [
 
 [[package]]
 name = "dw_client"
-version = "0.1.0"
+version = "0.1.0-beta"
 dependencies = [
  "chrono",
  "clap",
@@ -587,7 +587,7 @@ dependencies = [
 
 [[package]]
 name = "dw_server"
-version = "0.1.0"
+version = "0.1.0-beta"
 dependencies = [
  "clap",
  "futures-util",
@@ -1239,7 +1239,7 @@ dependencies = [
 
 [[package]]
 name = "metrics_types"
-version = "0.1.0"
+version = "0.1.0-beta"
 dependencies = [
  "fake",
  "hyper",

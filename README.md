@@ -14,4 +14,4 @@ Gather, Process, Store, and Display Metrics Data.
 
 Server need redis && mysql. 
 
-[Installation reference](./dw_server/ReadMe.md)
+[Installation reference](./dw_server/README.md)
