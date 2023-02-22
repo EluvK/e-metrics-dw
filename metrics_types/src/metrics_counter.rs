@@ -139,7 +139,8 @@ mod test {
     fn test_metrics_log() {
         let json_object = json::parse(
             r#"{"category":"xvm","tag":"contract_manager_counter","type":"counter","content":{"count":1,"value":1}}"#,
-        ).unwrap();
+        )
+        .unwrap();
 
         println!("{:?}", json_object);
 

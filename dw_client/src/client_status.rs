@@ -101,11 +101,7 @@ impl std::fmt::Display for ClientBasicInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            concat!(
-                "  * monitor log: {}\n",
-                "  * meta info:   {}\n",
-                "  * start at {}"
-            ),
+            concat!("  * monitor log: {}\n", "  * meta info:   {}\n", "  * start at {}"),
             self.log_path, self.meta, self.start_time
         )
     }
@@ -138,11 +134,7 @@ impl std::fmt::Display for QueueInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            concat!(
-                "  * current cached queue size:\n",
-                "    * log:  {}\n",
-                "    * send: {}"
-            ),
+            concat!("  * current cached queue size:\n", "    * log:  {}\n", "    * send: {}"),
             self.log_queue_current, self.send_queue_current
         )
     }

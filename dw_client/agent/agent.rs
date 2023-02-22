@@ -27,9 +27,7 @@ struct AgentArgs {
 fn format_env_name(input: String) -> Result<String, ClientError> {
     let mut input = input.clone();
     if !input.is_ascii() {
-        return Err(ClientError::CustomError(
-            "env_name contain non ascii character".into(),
-        ));
+        return Err(ClientError::CustomError("env_name contain non ascii character".into()));
     }
     input = input
         .chars()
