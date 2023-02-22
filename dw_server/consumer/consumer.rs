@@ -17,8 +17,8 @@ const FETCH_REDIS_DATA_MAX_SIZE: usize = 100;
 macro_rules! HANDLE_UNIT {
     ($func:ident, $unit_type:ident, $alarm_type:expr) => {
         async fn $func(mysql_url: String) {
-            let mut rc = RedisConn::new()
-                .expect(format!("Create redis connection error {:?}", stringify!($func)).as_str());
+            let mut rc =
+                RedisConn::new().expect(format!("Create redis connection error {:?}", stringify!($func)).as_str());
             let cb = Arc::new(Mutex::new(ConsumerBackend::<$unit_type>::new(
                 mysql_url,
                 $alarm_type,

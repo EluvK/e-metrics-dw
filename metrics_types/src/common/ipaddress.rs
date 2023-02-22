@@ -50,17 +50,14 @@ impl FromStr for IpAddress {
     type Err = TypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let r = s.split_once(':').ok_or(TypeError::DeFromStringError(
-            "ipaddress string split port error".into(),
-        ))?;
+        let r = s
+            .split_once(':')
+            .ok_or(TypeError::DeFromStringError("ipaddress string split port error".into()))?;
         lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r#"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$"#).unwrap();
+            static ref RE: Regex = Regex::new(r#"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$"#).unwrap();
         }
         if !RE.is_match(r.0) {
-            return Err(TypeError::DeFromStringError(
-                "ipaddress string ip format error".into(),
-            ));
+            return Err(TypeError::DeFromStringError("ipaddress string ip format error".into()));
         }
         Ok(IpAddress {
             ip: String::from(r.0),
@@ -98,8 +95,8 @@ impl IpAddress {
                 let body = hyper::body::to_bytes(r.body_mut())
                     .await
                     .map_err(|e| TypeError::CustomError(e.to_string()))?;
-                let ip = String::from_utf8(body.into_iter().collect())
-                    .map_err(|e| TypeError::CustomError(e.to_string()))?;
+                let ip =
+                    String::from_utf8(body.into_iter().collect()).map_err(|e| TypeError::CustomError(e.to_string()))?;
                 Ok(IpAddress { ip, port: 9000 })
             }
             _ => Err(TypeError::CustomError("query public ip failed".into())),

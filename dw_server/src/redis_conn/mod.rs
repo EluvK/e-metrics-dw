@@ -16,9 +16,7 @@ impl RedisConn {
     }
 
     pub fn list_push(&mut self, key: &MetricsAlarmType, value: String) -> RedisResult<()> {
-        let _ = self
-            .conn
-            .lpush::<String, String, ()>(key.as_redis_key(), value)?;
+        let _ = self.conn.lpush::<String, String, ()>(key.as_redis_key(), value)?;
         Ok(())
     }
 
@@ -28,17 +26,11 @@ impl RedisConn {
     }
 
     pub fn list_pop_block(&mut self, key: &MetricsAlarmType) -> RedisResult<String> {
-        let r = self
-            .conn
-            .blpop::<String, (String, String)>(key.as_redis_key(), 0)?;
+        let r = self.conn.blpop::<String, (String, String)>(key.as_redis_key(), 0)?;
         Ok(r.1)
     }
 
-    pub fn list_pop_multi(
-        &mut self,
-        key: &MetricsAlarmType,
-        cnt: NonZeroUsize,
-    ) -> RedisResult<Vec<String>> {
+    pub fn list_pop_multi(&mut self, key: &MetricsAlarmType, cnt: NonZeroUsize) -> RedisResult<Vec<String>> {
         let r = self.conn.lmpop::<String, (String, Vec<String>)>(
             1,
             key.as_redis_key(),
@@ -48,11 +40,7 @@ impl RedisConn {
         Ok(r.1)
     }
 
-    pub fn list_pop_block_multi(
-        &mut self,
-        key: &MetricsAlarmType,
-        cnt: NonZeroUsize,
-    ) -> RedisResult<Vec<String>> {
+    pub fn list_pop_block_multi(&mut self, key: &MetricsAlarmType, cnt: NonZeroUsize) -> RedisResult<Vec<String>> {
         let r = self.conn.blmpop::<String, (String, Vec<String>)>(
             0,
             1,
@@ -73,57 +61,36 @@ mod test {
     #[test]
     fn test_redis() {
         let mut c = RedisConn::new().unwrap();
-        c.list_push(
-            &MetricsAlarmType::Counter,
-            "{some metrics data}".to_string(),
-        )
-        .unwrap();
+        c.list_push(&MetricsAlarmType::Counter, "{some metrics data}".to_string())
+            .unwrap();
         let r = c.list_pop(&MetricsAlarmType::Counter).unwrap();
         assert_eq!(r, String::from("{some metrics data}"));
 
-        c.list_push(
-            &MetricsAlarmType::Flow,
-            "some flow metrics data".to_string(),
-        )
-        .unwrap();
+        c.list_push(&MetricsAlarmType::Flow, "some flow metrics data".to_string())
+            .unwrap();
 
         let r = c.list_pop_block(&MetricsAlarmType::Flow).unwrap();
         assert_eq!(r, String::from("some flow metrics data"));
 
-        c.list_push(
-            &MetricsAlarmType::Timer,
-            "some time metrics data".to_string(),
-        )
-        .unwrap();
+        c.list_push(&MetricsAlarmType::Timer, "some time metrics data".to_string())
+            .unwrap();
 
-        c.list_push(
-            &MetricsAlarmType::Timer,
-            "some time metrics data".to_string(),
-        )
-        .unwrap();
+        c.list_push(&MetricsAlarmType::Timer, "some time metrics data".to_string())
+            .unwrap();
 
         let r = c
             .list_pop_multi(&MetricsAlarmType::Timer, NonZeroUsize::new(2).unwrap())
             .unwrap();
         assert_eq!(r, vec!["some time metrics data", "some time metrics data"]);
 
-        c.list_push(
-            &MetricsAlarmType::Timer,
-            "some time metrics data".to_string(),
-        )
-        .unwrap();
+        c.list_push(&MetricsAlarmType::Timer, "some time metrics data".to_string())
+            .unwrap();
 
-        c.list_push(
-            &MetricsAlarmType::Timer,
-            "some time metrics data".to_string(),
-        )
-        .unwrap();
+        c.list_push(&MetricsAlarmType::Timer, "some time metrics data".to_string())
+            .unwrap();
 
-        c.list_push(
-            &MetricsAlarmType::Timer,
-            "some time metrics data".to_string(),
-        )
-        .unwrap();
+        c.list_push(&MetricsAlarmType::Timer, "some time metrics data".to_string())
+            .unwrap();
 
         let r = c
             .list_pop_block_multi(&MetricsAlarmType::Timer, NonZeroUsize::new(3).unwrap())

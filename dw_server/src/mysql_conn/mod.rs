@@ -21,18 +21,14 @@ impl MysqlDBConn {
         let mut conn = pool.get_conn().await?;
         let sql = format!(r#"SHOW DATABASES LIKE "{}";"#, db_name);
         let db_exist_result = sql
-            .map::<String, Option<String>, _, &mut mysql_async::Conn>(&mut conn, |db_result| {
-                Some(db_result)
-            })
+            .map::<String, Option<String>, _, &mut mysql_async::Conn>(&mut conn, |db_result| Some(db_result))
             .await?;
         // println!("db_exist_result:{:?}", db_exist_result);
 
         let mut need_create = false;
 
         if db_exist_result.is_empty() {
-            let _ = format!(r#"CREATE DATABASE {};"#, db_name)
-                .run(&mut conn)
-                .await?;
+            let _ = format!(r#"CREATE DATABASE {};"#, db_name).run(&mut conn).await?;
             println!("CREATE DATABASE {}", db_name);
             need_create = true
         }

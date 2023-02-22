@@ -15,8 +15,7 @@ use tokio::{
 use regex::Regex;
 
 use metrics_types::{
-    unit_jsonlog_handler::UnitJsonLogHandler, CounterUnit, FlowUnit, MetaInfos, MetricsAlarmType,
-    TimerUnit,
+    unit_jsonlog_handler::UnitJsonLogHandler, CounterUnit, FlowUnit, MetaInfos, MetricsAlarmType, TimerUnit,
 };
 
 pub struct LogHandler {
@@ -85,12 +84,7 @@ impl LogHandler {
                     tokio::time::sleep(Duration::from_secs(5)).await;
                 }
                 Ok(file) => match self
-                    .monitor_file(
-                        metrics_log_queue.clone(),
-                        file,
-                        begin_pos,
-                        client_status.clone(),
-                    )
+                    .monitor_file(metrics_log_queue.clone(), file, begin_pos, client_status.clone())
                     .await
                 {
                     Ok(next_read_pos) => {
@@ -137,10 +131,7 @@ impl LogHandler {
                 file_might_stop_count += 1;
                 if file_might_stop_count >= 4 {
                     let file_end_pos = buf_reader.seek(SeekFrom::End(0)).await?;
-                    client_status
-                        .lock()
-                        .await
-                        .update_file_info_end(file_end_pos);
+                    client_status.lock().await.update_file_info_end(file_end_pos);
                     // println!("file_end_pos:{}", file_end_pos);
                     file_might_stop_count = 0;
                     if file_end_pos < new_pos {
@@ -152,10 +143,7 @@ impl LogHandler {
                     }
                 }
             }
-            client_status
-                .lock()
-                .await
-                .log_queue_current(metrics_log_queue.len());
+            client_status.lock().await.log_queue_current(metrics_log_queue.len());
         };
         return Ok(next_read_pos);
     }
@@ -200,20 +188,12 @@ impl LogHandler {
                     tokio::time::sleep(Duration::from_secs(1)).await;
                 }
                 Err(concurrent_queue::PopError::Closed) => {
-                    return Err(ClientError::QueueError(
-                        concurrent_queue::PopError::Closed.to_string(),
-                    ));
+                    return Err(ClientError::QueueError(concurrent_queue::PopError::Closed.to_string()));
                 }
             }
 
-            client_status
-                .lock()
-                .await
-                .log_queue_current(metrics_log_queue.len());
-            client_status
-                .lock()
-                .await
-                .send_queue_current(metrics_send_queue.len());
+            client_status.lock().await.log_queue_current(metrics_log_queue.len());
+            client_status.lock().await.send_queue_current(metrics_send_queue.len());
         }
     }
 
@@ -249,23 +229,17 @@ impl LogHandler {
                         continuous_pop_cnt = continuous_pop_cnt + 1;
                     }
                     let send_combined = String::from("[") + &send_data_vec.join(",") + "]";
-                    self.do_batch_send_alarm(send_combined, client_status.clone())
-                        .await?;
+                    self.do_batch_send_alarm(send_combined, client_status.clone()).await?;
                 }
                 Err(concurrent_queue::PopError::Empty) => {
                     tokio::time::sleep(Duration::from_secs(1)).await;
                 }
                 Err(concurrent_queue::PopError::Closed) => {
-                    return Err(ClientError::QueueError(
-                        concurrent_queue::PopError::Closed.to_string(),
-                    ))
+                    return Err(ClientError::QueueError(concurrent_queue::PopError::Closed.to_string()))
                 }
             }
 
-            client_status
-                .lock()
-                .await
-                .send_queue_current(metrics_send_queue.len());
+            client_status.lock().await.send_queue_current(metrics_send_queue.len());
         }
     }
 
@@ -296,8 +270,7 @@ impl LogHandler {
     fn handler_metrics(&self, log: String) -> Option<String> {
         lazy_static! {
             static ref RE: Regex =
-                Regex::new(r#"\[metrics\](?P<fulllog>\{.*"type":"(?P<type>[a-zA-Z_]*)".*\})"#)
-                    .unwrap();
+                Regex::new(r#"\[metrics\](?P<fulllog>\{.*"type":"(?P<type>[a-zA-Z_]*)".*\})"#).unwrap();
         }
         let match_result = RE.captures(&log).and_then(|cap| {
             let fulllog = cap.name("fulllog");
@@ -335,10 +308,7 @@ impl LogHandler {
         result
     }
 
-    async fn dump_client_status(
-        &self,
-        client_status: Arc<Mutex<ClientStatusInfo>>,
-    ) -> Result<!, ClientError> {
+    async fn dump_client_status(&self, client_status: Arc<Mutex<ClientStatusInfo>>) -> Result<!, ClientError> {
         loop {
             client_status.lock().await.dump()?;
             tokio::time::sleep(Duration::from_secs(5)).await;

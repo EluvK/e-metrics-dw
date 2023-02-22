@@ -52,14 +52,10 @@ where
 
     async fn try_commit(&mut self) -> Result<usize> {
         if self.cache_data.len() > CACHE_DATA_MUST_COMMIT_LEN {
-            let r = self
-                .cache_data
-                .drain(0..CACHE_DATA_MUST_COMMIT_LEN)
-                .collect();
+            let r = self.cache_data.drain(0..CACHE_DATA_MUST_COMMIT_LEN).collect();
             self.mysql_conn.insert(r).await?;
             self.commit_time = Instant::now();
-        } else if self.commit_time.elapsed() > Duration::from_secs(3) && !self.cache_data.is_empty()
-        {
+        } else if self.commit_time.elapsed() > Duration::from_secs(3) && !self.cache_data.is_empty() {
             let r = self.cache_data.drain(..).collect();
             self.mysql_conn.insert(r).await?;
             self.commit_time = Instant::now();
