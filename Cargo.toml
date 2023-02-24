@@ -15,7 +15,7 @@ rust-version = "1.66"
 metrics_types = { version = "0.1.0-beta", path = "./metrics_types" }
 chrono = "0.4"
 clap = { version = "4.0", features = ["derive"] }
-concurrent-queue = "2.0.0"
+concurrent-queue = "2.1.0"
 fake = { version = "2.5", features = ["derive"] }
 futures-util = "0.3"
 hyper = { version = "0.14", features = ["full"] }
