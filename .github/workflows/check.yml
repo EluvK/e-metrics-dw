@@ -3,7 +3,6 @@ name: check branch
 on:
   push:
     branches:
-      - 'master'
       - 'feature/**'
   pull_request:
     types: 
