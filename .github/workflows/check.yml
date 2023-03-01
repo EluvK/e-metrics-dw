@@ -4,15 +4,11 @@ on:
   push:
     branches:
       - 'master'
-      - 'dev'
       - 'feature/**'
   pull_request:
     types: 
       - opened
-      - reopened
       - pushed
-      - synchronize
-      - ready_for_review
     branches:
       - 'master'
       - 'dev'
@@ -26,6 +22,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@nightly
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
       - run: cargo check
 
   
