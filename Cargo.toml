@@ -21,7 +21,7 @@ futures-util = "0.3.26"
 hyper = { version = "0.14.24", features = ["full"] }
 json = "0.12.4"
 lazy_static = "1.4.0"
-local-ip-address = "0.5.1"
+local-ip-address = "0.5.2"
 mysql_async = "0.31.3"
 rand = { version = "0.8.5" }
 redis = { version = "0.22.3", features = ["tokio-comp"] }
