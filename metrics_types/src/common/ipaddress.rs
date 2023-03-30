@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use hyper::{Body, Client, Request, StatusCode};
 use lazy_static::lazy_static;
-use local_ip_address::linux::local_ip;
+use local_ip_address::local_ip;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
