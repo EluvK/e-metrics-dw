@@ -14,21 +14,21 @@ rust-version = "1.66"
 [workspace.dependencies]
 metrics_types = { version = "0.1.0-beta", path = "./metrics_types" }
 chrono = "0.4.24"
-clap = { version = "4.2.1", features = ["derive"] }
-concurrent-queue = "2.1.0"
-fake = { version = "2.5.0", features = ["derive"] }
-futures-util = "0.3.27"
-hyper = { version = "0.14.25", features = ["full"] }
+clap = { version = "4.2.5", features = ["derive"] }
+concurrent-queue = "2.2.0"
+fake = { version = "2.6.0", features = ["derive"] }
+futures-util = "0.3.28"
+hyper = { version = "0.14.26", features = ["full"] }
 json = "0.12.4"
 lazy_static = "1.4.0"
 local-ip-address = "0.5.1"
-mysql_async = "0.31.3"
+mysql_async = "0.32.2"
 rand = { version = "0.8.5" }
-redis = { version = "0.22.3", features = ["tokio-comp"] }
-regex = "1.7.3"
-serde = { version = "1.0.159", features = ["derive"] }
-serde_json = "1.0.95"
+redis = { version = "0.23.0", features = ["tokio-comp"] }
+regex = "1.8.1"
+serde = { version = "1.0.162", features = ["derive"] }
+serde_json = "1.0.96"
 thiserror = { version = "1.0.40", default-features = false }
-tokio = { version = "1.27.0", features = ["full"] }
+tokio = { version = "1.28.0", features = ["full"] }
 
 tokio-test = "0.4.2"

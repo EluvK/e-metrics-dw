@@ -1,5 +1,3 @@
-#![feature(is_some_and)]
-
 use futures_util::future;
 use std::net::SocketAddr;
 use std::str::FromStr;
