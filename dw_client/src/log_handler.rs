@@ -128,24 +128,31 @@ impl LogHandler {
             } else {
                 // log file might stop logging, or restart from begining.
                 tokio::time::sleep(Duration::from_secs(1)).await;
-                file_might_stop_count += 1;
-                if file_might_stop_count >= 4 {
-                    let file_end_pos = buf_reader.seek(SeekFrom::End(0)).await?;
-                    client_status.lock().await.update_file_info_end(file_end_pos);
-                    // println!("file_end_pos:{}", file_end_pos);
-                    file_might_stop_count = 0;
-                    if file_end_pos < new_pos {
-                        // re-begin read file from begining.
-                        // last_read_pos = 0;
-                        break 0;
-                    } else if file_end_pos == new_pos {
-                        break file_end_pos;
+
+                match file_might_stop_count >= 4 {
+                    true => {
+                        let file_end_pos = buf_reader.seek(SeekFrom::End(0)).await?;
+                        client_status.lock().await.update_file_info_end(file_end_pos);
+                        // println!("file_end_pos:{}", file_end_pos);
+                        #[allow(unused_assignments)]
+                        file_might_stop_count = 0;
+                        match file_end_pos < new_pos {
+                            true => {
+                                // re-begin read file from begining.
+                                // last_read_pos = 0;
+                                break 0;
+                            }
+                            false => {
+                                break file_end_pos;
+                            }
+                        }
                     }
+                    false => file_might_stop_count += 1,
                 }
             }
             client_status.lock().await.log_queue_current(metrics_log_queue.len());
         };
-        return Ok(next_read_pos);
+        Ok(next_read_pos)
     }
 
     async fn handle_metrics_log(
@@ -157,7 +164,7 @@ impl LogHandler {
         loop {
             let mut cnt = 0;
             while cnt < 10 && metrics_log_queue.len() < 10 {
-                cnt = cnt + 1;
+                cnt += 1;
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }
             // 1s timeout or len > 10
@@ -180,7 +187,7 @@ impl LogHandler {
                                 break;
                             }
                         }
-                        continuous_pop_cnt = continuous_pop_cnt + 1;
+                        continuous_pop_cnt += 1;
                     }
                 }
                 Err(concurrent_queue::PopError::Empty) => {
@@ -205,7 +212,7 @@ impl LogHandler {
         loop {
             let mut cnt = 0;
             while cnt < 10 && metrics_send_queue.len() < 10 {
-                cnt = cnt + 1;
+                cnt += 1;
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }
             // 1s timeout or len > 10
@@ -226,7 +233,7 @@ impl LogHandler {
                                 break;
                             }
                         }
-                        continuous_pop_cnt = continuous_pop_cnt + 1;
+                        continuous_pop_cnt += 1;
                     }
                     let send_combined = String::from("[") + &send_data_vec.join(",") + "]";
                     self.do_batch_send_alarm(send_combined, client_status.clone()).await?;
@@ -275,10 +282,10 @@ impl LogHandler {
         let match_result = RE.captures(&log).and_then(|cap| {
             let fulllog = cap.name("fulllog");
             let r#type = cap.name("type");
-            if None == fulllog || None == r#type {
-                None
+            if let (Some(fulllog), Some(r#type)) = (fulllog, r#type) {
+                Some((fulllog, r#type))
             } else {
-                Some((fulllog.unwrap(), r#type.unwrap()))
+                None
             }
         });
         let mut result = None;

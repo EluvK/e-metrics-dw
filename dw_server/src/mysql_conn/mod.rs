@@ -21,7 +21,7 @@ impl MysqlDBConn {
         let mut conn = pool.get_conn().await?;
         let sql = format!(r#"SHOW DATABASES LIKE "{}";"#, db_name);
         let db_exist_result = sql
-            .map::<String, Option<String>, _, &mut mysql_async::Conn>(&mut conn, |db_result| Some(db_result))
+            .map::<String, Option<String>, _, &mut mysql_async::Conn>(&mut conn, Some)
             .await?;
         // println!("db_exist_result:{:?}", db_exist_result);
 
@@ -51,7 +51,7 @@ impl MysqlDBConn {
     }
 
     pub async fn close(self) -> Result<()> {
-        Ok(self.pool.disconnect().await?)
+        self.pool.disconnect().await
     }
 
     async fn create_table(&self) -> Result<()> {

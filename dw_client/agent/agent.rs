@@ -25,7 +25,7 @@ struct AgentArgs {
 }
 
 fn format_env_name(input: String) -> Result<String, ClientError> {
-    let mut input = input.clone();
+    let mut input = input;
     if !input.is_ascii() {
         return Err(ClientError::CustomError("env_name contain non ascii character".into()));
     }
@@ -50,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let env_name = format_env_name(args.env_name)?;
 
     let log_handler = LogHandler::new(server_address, args.local, log_file, env_name).await?;
-    let _ = log_handler.start().await?;
+    log_handler.start().await?;
 
     #[allow(unreachable_code)]
     Ok(())

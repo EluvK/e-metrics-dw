@@ -16,7 +16,7 @@ impl RedisConn {
     }
 
     pub fn list_push(&mut self, key: &MetricsAlarmType, value: String) -> RedisResult<()> {
-        let _ = self.conn.lpush::<String, String, ()>(key.as_redis_key(), value)?;
+        self.conn.lpush::<String, String, ()>(key.as_redis_key(), value)?;
         Ok(())
     }
 

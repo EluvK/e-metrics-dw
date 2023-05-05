@@ -167,6 +167,6 @@ mod test {
         let result = TimerUnit::handle_log(json_object, &meta);
 
         println!("{:?}", result);
-        assert_eq!(result.is_some(), true);
+        assert!(result.is_some());
     }
 }

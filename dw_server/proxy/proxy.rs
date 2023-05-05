@@ -106,11 +106,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let addr = conn.remote_addr();
         let redis_conn = Arc::clone(&redis_conn);
         async move {
-            let addr = addr.clone();
+            let addr = addr;
             let redis_conn = Arc::clone(&redis_conn);
-            Ok::<_, hyper::Error>(service_fn(move |req| {
-                handle(req, addr.clone(), Arc::clone(&redis_conn))
-            }))
+            Ok::<_, hyper::Error>(service_fn(move |req| handle(req, addr, Arc::clone(&redis_conn))))
         }
     });
 

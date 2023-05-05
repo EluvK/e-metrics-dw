@@ -35,7 +35,7 @@ where
     }
 
     fn expired(&self) -> bool {
-        self.cache_data.len() == 0 && self.commit_time.elapsed() > Duration::from_secs(120)
+        self.cache_data.is_empty() && self.commit_time.elapsed() > Duration::from_secs(120)
     }
 
     async fn close(self) -> Result<()> {
