@@ -13,7 +13,7 @@ rust-version = "1.66"
 
 [workspace.dependencies]
 metrics_types = { version = "0.1.0-beta", path = "./metrics_types" }
-chrono = "0.4.24"
+chrono = "0.4.26"
 clap = { version = "4.2.5", features = ["derive"] }
 concurrent-queue = "2.2.0"
 fake = { version = "2.6.0", features = ["derive"] }
