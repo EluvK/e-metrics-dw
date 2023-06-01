@@ -25,7 +25,7 @@ local-ip-address = "0.5.1"
 mysql_async = "0.32.2"
 rand = { version = "0.8.5" }
 redis = { version = "0.23.0", features = ["tokio-comp"] }
-regex = "1.8.1"
+regex = "1.8.3"
 serde = { version = "1.0.162", features = ["derive"] }
 serde_json = "1.0.96"
 thiserror = { version = "1.0.40", default-features = false }
