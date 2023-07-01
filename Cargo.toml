@@ -29,6 +29,6 @@ regex = "1.8.1"
 serde = { version = "1.0.162", features = ["derive"] }
 serde_json = "1.0.96"
 thiserror = { version = "1.0.40", default-features = false }
-tokio = { version = "1.28.0", features = ["full"] }
+tokio = { version = "1.29.1", features = ["full"] }
 
 tokio-test = "0.4.2"
